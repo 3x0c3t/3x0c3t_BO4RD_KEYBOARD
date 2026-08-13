@@ -8,7 +8,7 @@
 
 
 // ------------------------------------------------------------
-// Écran
+// Ecran
 // ------------------------------------------------------------
 
 #define SCREEN_WIDTH  240
@@ -19,18 +19,17 @@
 
 // ------------------------------------------------------------
 // Calibration tactile
+// ------------------------------------------------------------
 //
-// 1 = afficher l'écran de choix de calibration
-// 0 = utiliser directement la configuration précédente
+// 1 = afficher le choix de calibration au démarrage
+// 0 = utiliser directement les valeurs précédentes
 // ------------------------------------------------------------
 
 #define TOUCH_CALIBRATION 1
 
 
 // ------------------------------------------------------------
-// Valeurs de calibration précédentes
-//
-// Dernières valeurs validées
+// Calibration précédente
 // ------------------------------------------------------------
 
 #define TOUCH_PREVIOUS_CAL_0 294
@@ -41,33 +40,33 @@
 
 
 // ------------------------------------------------------------
-// Bouton CALIBRATION
+// Ecran de choix calibration
 // ------------------------------------------------------------
 
-#define TOUCH_CAL_BUTTON_X 10
-#define TOUCH_CAL_BUTTON_Y 125
-#define TOUCH_CAL_BUTTON_W 220
-#define TOUCH_CAL_BUTTON_H 65
+// Bouton NOUVELLE CALIBRATION
+
+#define CALIBRATION_NEW_X 20
+#define CALIBRATION_NEW_Y 90
+#define CALIBRATION_NEW_W 200
+#define CALIBRATION_NEW_H 60
 
 
-// ------------------------------------------------------------
 // Bouton CONFIGURATION PRECEDENTE
+
+#define CALIBRATION_REUSE_X 20
+#define CALIBRATION_REUSE_Y 170
+#define CALIBRATION_REUSE_W 200
+#define CALIBRATION_REUSE_H 60
+
+
 // ------------------------------------------------------------
-
-#define TOUCH_REUSE_BUTTON_X 10
-#define TOUCH_REUSE_BUTTON_Y 205
-#define TOUCH_REUSE_BUTTON_W 220
-#define TOUCH_REUSE_BUTTON_H 65
-
-
-// ------------------------------------------------------------
-// Zone clavier
+// Clavier
 // ------------------------------------------------------------
 
 #define KEYBOARD_X 0
 #define KEYBOARD_Y 138
 #define KEYBOARD_W 240
-#define KEYBOARD_H 182
+#define KEYBOARD_HEIGHT 182
 
 #define KEYBOARD_ROWS 4
 #define KEYBOARD_COLS 10
@@ -77,30 +76,30 @@
 // Champ de saisie
 // ------------------------------------------------------------
 
-#define INPUT_X 5
-#define INPUT_Y 5
-#define INPUT_W 170
-#define INPUT_H 55
+#define INPUT_X 0
+#define INPUT_Y 105
+#define INPUT_W 240
+#define INPUT_H 30
 
 
 // ------------------------------------------------------------
 // Bouton DEL
 // ------------------------------------------------------------
 
-#define BTN_DEL_X 180
-#define BTN_DEL_Y 5
-#define BTN_DEL_W 55
-#define BTN_DEL_H 25
+#define BTN_DEL_X 0
+#define BTN_DEL_Y 65
+#define BTN_DEL_W 80
+#define BTN_DEL_H 35
 
 
 // ------------------------------------------------------------
 // Bouton OK
 // ------------------------------------------------------------
 
-#define BTN_OK_X 180
-#define BTN_OK_Y 35
-#define BTN_OK_W 55
-#define BTN_OK_H 25
+#define BTN_OK_X 160
+#define BTN_OK_Y 65
+#define BTN_OK_W 80
+#define BTN_OK_H 35
 
 
 // ------------------------------------------------------------

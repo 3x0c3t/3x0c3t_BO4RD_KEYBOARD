@@ -2,15 +2,17 @@
 #define TOUCH_CALIBRATION_H
 
 #include <Arduino.h>
-#include <TFT_eSPI.h>
 
-extern TFT_eSPI tft;
+void touchCalibrationInit();
 
-void touchCalibration();
+bool touchCalibrationUpdate(
+    uint16_t x,
+    uint16_t y
+);
 
-void touchCalibrationScreen();
+bool touchCalibrationIsFinished();
 
-bool touchReusePreviousCalibration();
+uint16_t *touchCalibrationData();
 
 void loadPreviousCalibration();
 
