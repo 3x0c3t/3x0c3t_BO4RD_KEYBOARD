@@ -2,9 +2,10 @@
 #define TOUCH_CALIBRATION_H
 
 #include <Arduino.h>
+#include <TFT_eSPI.h>
 
 // ============================================================
-// ETAT
+// ETATS
 // ============================================================
 
 enum TouchCalibrationState
@@ -12,6 +13,7 @@ enum TouchCalibrationState
     TOUCH_CALIBRATION_CHOICE = 0,
     TOUCH_CALIBRATION_RUNNING,
     TOUCH_CALIBRATION_DONE,
+    TOUCH_CALIBRATION_REUSE,
     TOUCH_CALIBRATION_KEYBOARD
 };
 
@@ -25,10 +27,12 @@ void touchCalibrationInit();
 // ECRAN DE CHOIX
 // ============================================================
 
+// Retourne true si une calibration doit être lancée.
+// Retourne false si la configuration précédente est utilisée.
 bool touchCalibrationChoice();
 
 // ============================================================
-// MISE A JOUR
+// TRAITEMENT DU TOUCH
 // ============================================================
 
 bool touchCalibrationUpdate(
@@ -37,41 +41,23 @@ bool touchCalibrationUpdate(
 );
 
 // ============================================================
-// CALIBRATION
+// CONFIGURATION PRECEDENTE
+// ============================================================
+
+bool loadPreviousCalibration();
+
+// ============================================================
+// NOUVELLE CALIBRATION
 // ============================================================
 
 void startTouchCalibration();
 
 // ============================================================
-// CONFIGURATION PRECEDENTE
-// ============================================================
-
-bool touchReusePreviousCalibration();
-
-void loadPreviousCalibration();
-
-// ============================================================
 // ETAT
 // ============================================================
 
-bool touchCalibrationIsRunning();
+bool touchCalibrationActive();
 
-bool touchCalibrationIsComplete();
-
-bool touchCalibrationUseKeyboard();
-
-// ============================================================
-// ZONES
-// ============================================================
-
-bool isNewCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
-
-bool isPreviousCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
+bool touchCalibrationFinished();
 
 #endif

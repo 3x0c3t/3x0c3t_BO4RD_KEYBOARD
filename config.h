@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef KEYBOARD_CONFIG_H
+#define KEYBOARD_CONFIG_H
 
 #include <Arduino.h>
 #include <TFT_eSPI.h>
@@ -8,39 +8,23 @@
 // ECRAN
 // ============================================================
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH   320
+#define SCREEN_HEIGHT  240
 #define SCREEN_ROTATION 2
 
 // ============================================================
 // COULEURS
 // ============================================================
 
-#define COLOR_BLACK   TFT_BLACK
-#define COLOR_WHITE   TFT_WHITE
-#define COLOR_RED     TFT_RED
-#define COLOR_GREEN   TFT_GREEN
-#define COLOR_BLUE    TFT_BLUE
-#define COLOR_YELLOW  TFT_YELLOW
-#define COLOR_CYAN    TFT_CYAN
-#define COLOR_MAGENTA TFT_MAGENTA
-#define COLOR_ORANGE  TFT_ORANGE
-#define COLOR_GREY   TFT_DARKGREY
-
-// ============================================================
-// CLAVIER
-// ============================================================
-
-#define KEYBOARD_X 0
-#define KEYBOARD_Y 58
-
-#define KEYBOARD_W 320
-#define KEYBOARD_H 182
-
-#define KEYBOARD_ROWS 4
-#define KEYBOARD_COLS 10
-
-#define KEYBOARD_MAX_LENGTH 16
+#define COLOR_BLACK    TFT_BLACK
+#define COLOR_WHITE    TFT_WHITE
+#define COLOR_RED      TFT_RED
+#define COLOR_GREEN    TFT_GREEN
+#define COLOR_BLUE     TFT_BLUE
+#define COLOR_YELLOW   TFT_YELLOW
+#define COLOR_CYAN     TFT_CYAN
+#define COLOR_MAGENTA  TFT_MAGENTA
+#define COLOR_GREY     TFT_DARKGREY
 
 // ============================================================
 // TOUCH
@@ -49,15 +33,6 @@
 #define TOUCH_THRESHOLD 600
 
 // Calibration précédente
-//
-// Valeurs actuellement utilisées dans les logs :
-// CAL0=294
-// CAL1=3385
-// CAL2=442
-// CAL3=289
-// CAL4=3387
-//
-
 #define TOUCH_PREVIOUS_CAL_0 294
 #define TOUCH_PREVIOUS_CAL_1 3385
 #define TOUCH_PREVIOUS_CAL_2 442
@@ -65,11 +40,11 @@
 #define TOUCH_PREVIOUS_CAL_4 3387
 
 // ============================================================
-// BOUTONS CHOIX CALIBRATION
+// ECRAN DE CHOIX CALIBRATION
 // ============================================================
 
 #define CALIBRATION_NEW_X 20
-#define CALIBRATION_NEW_Y 70
+#define CALIBRATION_NEW_Y 75
 #define CALIBRATION_NEW_W 280
 #define CALIBRATION_NEW_H 55
 
@@ -79,15 +54,51 @@
 #define CALIBRATION_REUSE_H 55
 
 // ============================================================
-// CIBLES DE CALIBRATION
+// CLAVIER
 // ============================================================
 
-#define CAL_TARGET_MARGIN 20
+#define KEYBOARD_X 0
+#define KEYBOARD_Y 58
+#define KEYBOARD_W 320
+#define KEYBOARD_H 182
+
+#define KEYBOARD_ROWS 4
+#define KEYBOARD_COLS 10
+
+#define KEYBOARD_MAX_LENGTH 32
 
 // ============================================================
-// OBJET TFT
+// ZONE DE SAISIE
 // ============================================================
 
-extern TFT_eSPI tft;
+#define INPUT_X 10
+#define INPUT_Y 5
+#define INPUT_W 220
+#define INPUT_H 42
+
+// ============================================================
+// BOUTON SUPPRIMER
+// ============================================================
+
+#define BTN_DEL_X 235
+#define BTN_DEL_Y 5
+#define BTN_DEL_W 75
+#define BTN_DEL_H 42
+
+// ============================================================
+// BOUTON OK
+// ============================================================
+
+#define BTN_OK_X 235
+#define BTN_OK_Y 193
+#define BTN_OK_W 75
+#define BTN_OK_H 42
+
+// ============================================================
+// INTERFACE
+// ============================================================
+
+#define KEYBOARD_TEXT_SIZE 2
+#define KEYBOARD_BORDER 2
 
 #endif

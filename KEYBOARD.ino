@@ -5,17 +5,9 @@
 #include "touch_calibration.h"
 #include "keyboard.h"
 
-// ============================================================
-// TFT
-// ============================================================
-
 TFT_eSPI tft = TFT_eSPI();
 
-// ============================================================
-// ETAT
-// ============================================================
-
-static bool keyboardStarted = false;
+bool keyboardStarted = false;
 
 // ============================================================
 // SETUP
@@ -27,9 +19,7 @@ void setup()
     delay(300);
 
     Serial.println();
-    Serial.println(
-        "=== 3x0c3t KEYBOARD v1.0 ==="
-    );
+    Serial.println("=== 3x0c3t KEYBOARD v1.0 ===");
 
     // --------------------------------------------------------
     // TFT
@@ -47,13 +37,37 @@ void setup()
     // TOUCH
     // --------------------------------------------------------
 
+    Serial.println("[TOUCH] Init TFT_eSPI");
+    Serial.print("[TOUCH] Rotation=");
+    Serial.println(SCREEN_ROTATION);
+
     touchCalibrationInit();
 
     // --------------------------------------------------------
-    // On attend le choix utilisateur
+    // CHOIX CALIBRATION
     // --------------------------------------------------------
 
-    keyboardStarted = false;
+    Serial.println("[TOUCH] Ecran de choix calibration");
+
+    bool newCalibration = touchCalibrationChoice();
+
+    if (newCalibration)
+    {
+        Serial.println("[TOUCH] Lancement calibration");
+
+        startTouchCalibration();
+
+        keyboardStarted = false;
+    }
+    else
+    {
+        Serial.println("[TOUCH] Configuration precedente chargee");
+
+        keyboardInit();
+        keyboardDraw();
+
+        keyboardStarted = true;
+    }
 }
 
 // ============================================================
@@ -65,68 +79,46 @@ void loop()
     uint16_t x = 0;
     uint16_t y = 0;
 
-    // ========================================================
-    // PHASE CHOIX CALIBRATION
-    // ========================================================
+    // --------------------------------------------------------
+    // CALIBRATION EN COURS
+    // --------------------------------------------------------
 
-    if (!keyboardStarted)
+    if (touchCalibrationActive())
     {
-        if (touchCalibrationIsRunning())
-        {
-            delay(10);
-            return;
-        }
-
-        if (touchCalibrationUseKeyboard())
-        {
-            Serial.println(
-                "[KEYBOARD] Passage au clavier"
-            );
-
-            keyboardInit();
-
-            Serial.println(
-                "[KEYBOARD] Init termine"
-            );
-
-            keyboardDraw();
-
-            keyboardStarted = true;
-
-            delay(300);
-
-            return;
-        }
-
-        // ----------------------------------------------------
-        // Lecture touch
-        // ----------------------------------------------------
-
         if (tft.getTouch(
                 &x,
                 &y,
                 TOUCH_THRESHOLD))
         {
-            Serial.print("[TOUCH SELECT] X=");
+            Serial.print("[TOUCH CAL] X=");
             Serial.print(x);
-
             Serial.print(" Y=");
             Serial.println(y);
 
-            touchCalibrationUpdate(
-                x,
-                y
-            );
+            if (touchCalibrationUpdate(x, y))
+            {
+                Serial.println("[TOUCH] Calibration terminee");
 
-            delay(250);
+                keyboardInit();
+                keyboardDraw();
+
+                keyboardStarted = true;
+            }
+
+            delay(120);
         }
 
         return;
     }
 
-    // ========================================================
-    // PHASE CLAVIER
-    // ========================================================
+    // --------------------------------------------------------
+    // CLAVIER
+    // --------------------------------------------------------
+
+    if (!keyboardStarted)
+    {
+        return;
+    }
 
     if (tft.getTouch(
             &x,
@@ -135,15 +127,11 @@ void loop()
     {
         Serial.print("[TOUCH] X=");
         Serial.print(x);
-
         Serial.print(" Y=");
         Serial.println(y);
 
-        Serial.print(
-            "[KEYBOARD TOUCH] X="
-        );
+        Serial.print("[KEYBOARD TOUCH] X=");
         Serial.print(x);
-
         Serial.print(" Y=");
         Serial.println(y);
 
