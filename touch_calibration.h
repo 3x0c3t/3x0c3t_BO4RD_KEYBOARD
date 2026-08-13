@@ -1,46 +1,18 @@
-#ifndef TOUCH_CALIBRATION_H
-#define TOUCH_CALIBRATION_H
+#ifndef TOUCH_CALIBRATION_MODULE_H
+#define TOUCH_CALIBRATION_MODULE_H
 
 #include <Arduino.h>
 
-
 // ============================================================
-// DONNEES DE CALIBRATION
-// ============================================================
-
-extern uint16_t calData[5];
-
-
-// ============================================================
-// INITIALISATION
+// Calibration tactile
 // ============================================================
 
-void touchCalibrationInit();
-
-
-// ============================================================
-// CALIBRATION
-// ============================================================
-
-void touchCalibrate();
-
+void touchCalibration();
 
 // ============================================================
-// AFFICHAGE
+// Chargement des anciennes valeurs
 // ============================================================
 
-void drawCalibrationScreen();
-
-
-// ============================================================
-// ANCIENNE CALIBRATION
-// ============================================================
-
-bool touchReusePreviousCalibration(
-    int16_t x,
-    int16_t y
-);
-
-void loadPreviousCalibration();
+void touchLoadPreviousCalibration();
 
 #endif

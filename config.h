@@ -11,8 +11,9 @@
 // Écran
 // ------------------------------------------------------------
 
-#define SCREEN_WIDTH  240
-#define SCREEN_HEIGHT 320
+#define SCREEN_WIDTH   240
+#define SCREEN_HEIGHT  320
+
 #define SCREEN_ROTATION 2
 
 
@@ -20,45 +21,10 @@
 // Calibration tactile
 //
 // 1 = calibration à chaque démarrage
-// 0 = pas de calibration
+// 0 = utilisation des valeurs précédentes
 // ------------------------------------------------------------
 
 #define TOUCH_CALIBRATION 1
-
-
-// ------------------------------------------------------------
-// Anciennes valeurs de calibration
-//
-// Ces valeurs servent lorsque l'utilisateur choisit
-// "reprendre les valeurs précédentes".
-//
-// Dernières valeurs relevées :
-// X min = 291
-// X max = 3387
-// Y min = 410
-// Y max = 3387 environ
-//
-// À ajuster si nécessaire après une nouvelle calibration.
-// ------------------------------------------------------------
-
-#define TOUCH_PREVIOUS_CAL_0 291
-#define TOUCH_PREVIOUS_CAL_1 3387
-#define TOUCH_PREVIOUS_CAL_2 410
-#define TOUCH_PREVIOUS_CAL_3 3387
-#define TOUCH_PREVIOUS_CAL_4 2
-
-
-// ------------------------------------------------------------
-// Zone du bouton permettant de reprendre la calibration
-// précédente
-//
-// Coordonnées écran, rotation 2
-// ------------------------------------------------------------
-
-#define TOUCH_REUSE_X 20
-#define TOUCH_REUSE_Y 235
-#define TOUCH_REUSE_W 200
-#define TOUCH_REUSE_H 35
 
 
 // ------------------------------------------------------------
@@ -79,8 +45,8 @@
 // ------------------------------------------------------------
 
 #define INPUT_X 5
-#define INPUT_Y 5
-#define INPUT_W 170
+#define INPUT_Y 8
+#define INPUT_W 230
 #define INPUT_H 40
 
 
@@ -88,9 +54,9 @@
 // Bouton DEL
 // ------------------------------------------------------------
 
-#define BTN_DEL_X 180
-#define BTN_DEL_Y 5
-#define BTN_DEL_W 55
+#define BTN_DEL_X 5
+#define BTN_DEL_Y 50
+#define BTN_DEL_W 110
 #define BTN_DEL_H 40
 
 
@@ -98,10 +64,31 @@
 // Bouton OK
 // ------------------------------------------------------------
 
-#define BTN_OK_X 180
+#define BTN_OK_X 120
 #define BTN_OK_Y 50
-#define BTN_OK_W 55
+#define BTN_OK_W 115
 #define BTN_OK_H 40
+
+
+// ------------------------------------------------------------
+// Zone de réutilisation calibration
+// ------------------------------------------------------------
+
+#define TOUCH_REUSE_X 20
+#define TOUCH_REUSE_Y 270
+#define TOUCH_REUSE_W 200
+#define TOUCH_REUSE_H 35
+
+
+// ------------------------------------------------------------
+// Valeurs de calibration précédentes
+// ------------------------------------------------------------
+
+#define TOUCH_PREVIOUS_CAL_0 294
+#define TOUCH_PREVIOUS_CAL_1 3385
+#define TOUCH_PREVIOUS_CAL_2 442
+#define TOUCH_PREVIOUS_CAL_3 3380
+#define TOUCH_PREVIOUS_CAL_4 2
 
 
 // ------------------------------------------------------------

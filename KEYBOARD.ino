@@ -5,13 +5,11 @@
 #include "keyboard.h"
 #include "touch_calibration.h"
 
-
 // ============================================================
 // TFT
 // ============================================================
 
 TFT_eSPI tft = TFT_eSPI();
-
 
 // ============================================================
 // SETUP
@@ -21,92 +19,64 @@ void setup()
 {
     Serial.begin(115200);
 
-    delay(300);
-
+    delay(500);
 
     Serial.println();
-    Serial.println(
-        "=== 3x0c3t KEYBOARD v1.0 ==="
-    );
-
+    Serial.println("=== 3x0c3t KEYBOARD v1.0 ===");
 
     // --------------------------------------------------------
     // TFT
     // --------------------------------------------------------
 
-    Serial.println(
-        "[KEYBOARD] TFT Init"
-    );
+    Serial.println("[KEYBOARD] TFT Init");
 
     tft.init();
 
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
+    tft.setRotation(SCREEN_ROTATION);
 
-    Serial.println(
-        "[KEYBOARD] TFT OK"
-    );
+    tft.fillScreen(COLOR_BLACK);
 
+    Serial.println("[KEYBOARD] TFT OK");
 
     // --------------------------------------------------------
-    // TOUCH / CALIBRATION
+    // TOUCH
     // --------------------------------------------------------
 
-    Serial.println(
-        "[TOUCH] Init TFT_eSPI"
-    );
+    Serial.println("[TOUCH] Init TFT_eSPI");
 
+    Serial.print("[TOUCH] Rotation=");
+    Serial.println(SCREEN_ROTATION);
 
-    Serial.print(
-        "[TOUCH] Rotation="
-    );
-
-    Serial.println(
-        SCREEN_ROTATION
-    );
-
+    // --------------------------------------------------------
+    // CALIBRATION
+    // --------------------------------------------------------
 
 #if TOUCH_CALIBRATION == 1
 
-    Serial.println(
-        "[TOUCH] Calibration automatique ACTIVE"
-    );
+    Serial.println("[TOUCH] Calibration automatique ACTIVE");
 
     touchCalibration();
 
 #else
 
-    Serial.println(
-        "[TOUCH] Calibration automatique DESACTIVEE"
-    );
+    Serial.println("[TOUCH] Calibration desactivee");
 
-    touchCalibration();
+    touchLoadPreviousCalibration();
 
 #endif
-
 
     // --------------------------------------------------------
     // KEYBOARD
     // --------------------------------------------------------
 
-    Serial.println(
-        "[KEYBOARD] Initialisation"
-    );
+    Serial.println("[KEYBOARD] Initialisation");
 
-    keyboardBegin();
+    keyboardInit();
 
+    Serial.println("[KEYBOARD] OK");
 
-    Serial.println(
-        "[KEYBOARD] OK"
-    );
-
-
-    Serial.println(
-        "=== KEYBOARD READY ==="
-    );
+    Serial.println("=== KEYBOARD READY ===");
 }
-
 
 // ============================================================
 // LOOP
@@ -114,41 +84,22 @@ void setup()
 
 void loop()
 {
-    uint16_t x;
-    uint16_t y;
+    uint16_t touchX = 0;
+    uint16_t touchY = 0;
 
-
-    if (tft.getTouch(&x, &y))
+    if (tft.getTouch(&touchX, &touchY))
     {
-        Serial.print(
-            "[TOUCH] X="
-        );
+        Serial.print("[TOUCH] X=");
+        Serial.print(touchX);
 
-        Serial.print(x);
-
-        Serial.print(
-            " Y="
-        );
-
-        Serial.println(y);
-
+        Serial.print(" Y=");
+        Serial.println(touchY);
 
         keyboardUpdate(
-            x,
-            y
+            (int16_t)touchX,
+            (int16_t)touchY
         );
 
-
-        // ----------------------------------------------------
-        // Attendre le relâchement
-        // ----------------------------------------------------
-
-        while (tft.getTouch(&x, &y))
-        {
-            delay(10);
-        }
-
-
-        delay(30);
+        delay(120);
     }
 }
