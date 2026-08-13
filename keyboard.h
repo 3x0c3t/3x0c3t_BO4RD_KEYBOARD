@@ -3,72 +3,25 @@
 
 #include <Arduino.h>
 
-// ============================================================
-// Modes clavier
-// ============================================================
-
-enum KeyboardMode
-{
-    KEYBOARD_ALPHA,
-    KEYBOARD_NUMERIC,
-    KEYBOARD_SYMBOLS
-};
-
-// ============================================================
-// Initialisation
-// ============================================================
-
+// Initialise le clavier
 void keyboardBegin();
 
-// ============================================================
-// Affichage
-// ============================================================
-
+// Dessine le clavier
 void keyboardDraw();
 
-// ============================================================
-// Gestion tactile
-// ============================================================
+// Traite un appui tactile
+void keyboardUpdate(int16_t x, int16_t y);
 
-void keyboardUpdate(
-    int16_t x,
-    int16_t y
-);
-
-// ============================================================
-// Texte
-// ============================================================
-
+// Retourne le texte saisi
 const char* keyboardGetText();
 
+// Efface le texte
 void keyboardClearText();
 
-void keyboardBackspace();
-
-// ============================================================
-// Mode clavier
-// ============================================================
-
-void keyboardSetMode(
-    KeyboardMode mode
-);
-
-KeyboardMode keyboardGetMode();
-
-// ============================================================
-// SHIFT
-// ============================================================
-
-void keyboardToggleShift();
-
-bool keyboardIsShift();
-
-// ============================================================
-// Validation
-// ============================================================
-
+// Indique si la touche VALIDER a été pressée
 bool keyboardWasValidated();
 
+// Efface l'état VALIDÉ
 void keyboardClearValidated();
 
 #endif
