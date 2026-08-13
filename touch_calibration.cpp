@@ -7,53 +7,28 @@
 extern TFT_eSPI tft;
 
 // ============================================================
-// DONNEES CALIBRATION
-// ============================================================
-
-static uint16_t calData[5] =
-{
-    TOUCH_PREVIOUS_CAL_0,
-    TOUCH_PREVIOUS_CAL_1,
-    TOUCH_PREVIOUS_CAL_2,
-    TOUCH_PREVIOUS_CAL_3,
-    TOUCH_PREVIOUS_CAL_4
-};
-
-// ============================================================
 // ETAT
 // ============================================================
 
 static TouchCalibrationState calibrationState =
     TOUCH_CALIBRATION_CHOICE;
 
-static bool calibrationRunning = false;
-static bool calibrationComplete = false;
-static bool useKeyboard = false;
-
-// ============================================================
-// ETAT CALIBRATION
-// ============================================================
-
-bool touchCalibrationIsRunning()
+static uint16_t calData[5] =
 {
-    return calibrationRunning;
-}
+    0,
+    0,
+    0,
+    0,
+    0
+};
 
-bool touchCalibrationIsComplete()
-{
-    return calibrationComplete;
-}
-
-bool touchCalibrationUseKeyboard()
-{
-    return useKeyboard;
-}
+static uint8_t calibrationPoint = 0;
 
 // ============================================================
-// CONFIG PRECEDENTE
+// CHARGER CONFIG PRECEDENTE
 // ============================================================
 
-void loadPreviousCalibration()
+bool loadPreviousCalibration()
 {
     calData[0] = TOUCH_PREVIOUS_CAL_0;
     calData[1] = TOUCH_PREVIOUS_CAL_1;
@@ -81,166 +56,127 @@ void loadPreviousCalibration()
 
     Serial.print("[TOUCH] CAL4=");
     Serial.println(calData[4]);
+
+    calibrationState =
+        TOUCH_CALIBRATION_REUSE;
+
+    return true;
 }
 
 // ============================================================
-// ECRAN CHOIX
-// ============================================================
-
-void drawCalibrationChoiceScreen()
-{
-    tft.fillScreen(COLOR_BLACK);
-
-    tft.setTextDatum(MC_DATUM);
-
-    tft.setTextColor(COLOR_WHITE, COLOR_BLACK);
-    tft.setTextSize(2);
-
-    tft.drawString(
-        "CONFIGURATION DU TOUCH",
-        SCREEN_WIDTH / 2,
-        25
-    );
-
-    // --------------------------------------------------------
-    // BOUTON NOUVELLE CALIBRATION
-    // --------------------------------------------------------
-
-    tft.fillRoundRect(
-        CALIBRATION_NEW_X,
-        CALIBRATION_NEW_Y,
-        CALIBRATION_NEW_W,
-        CALIBRATION_NEW_H,
-        8,
-        COLOR_BLUE
-    );
-
-    tft.drawRoundRect(
-        CALIBRATION_NEW_X,
-        CALIBRATION_NEW_Y,
-        CALIBRATION_NEW_W,
-        CALIBRATION_NEW_H,
-        8,
-        COLOR_WHITE
-    );
-
-    tft.setTextColor(COLOR_WHITE, COLOR_BLUE);
-    tft.setTextSize(2);
-
-    tft.drawString(
-        "NOUVELLE CALIBRATION",
-        SCREEN_WIDTH / 2,
-        CALIBRATION_NEW_Y + CALIBRATION_NEW_H / 2
-    );
-
-    // --------------------------------------------------------
-    // BOUTON CONFIG PRECEDENTE
-    // --------------------------------------------------------
-
-    tft.fillRoundRect(
-        CALIBRATION_REUSE_X,
-        CALIBRATION_REUSE_Y,
-        CALIBRATION_REUSE_W,
-        CALIBRATION_REUSE_H,
-        8,
-        COLOR_GREEN
-    );
-
-    tft.drawRoundRect(
-        CALIBRATION_REUSE_X,
-        CALIBRATION_REUSE_Y,
-        CALIBRATION_REUSE_W,
-        CALIBRATION_REUSE_H,
-        8,
-        COLOR_WHITE
-    );
-
-    tft.setTextColor(COLOR_BLACK, COLOR_GREEN);
-    tft.setTextSize(2);
-
-    tft.drawString(
-        "CONFIG PRECEDENTE",
-        SCREEN_WIDTH / 2,
-        CALIBRATION_REUSE_Y + CALIBRATION_REUSE_H / 2
-    );
-
-    // --------------------------------------------------------
-    // INFORMATION
-    // --------------------------------------------------------
-
-    tft.setTextColor(COLOR_WHITE, COLOR_BLACK);
-    tft.setTextSize(1);
-
-    tft.drawString(
-        "Choisissez une configuration",
-        SCREEN_WIDTH / 2,
-        215
-    );
-
-    tft.setTextDatum(TL_DATUM);
-}
-
-// ============================================================
-// INIT
+// INITIALISATION
 // ============================================================
 
 void touchCalibrationInit()
 {
-    calibrationState = TOUCH_CALIBRATION_CHOICE;
+    calibrationState =
+        TOUCH_CALIBRATION_CHOICE;
 
-    calibrationRunning = false;
-    calibrationComplete = false;
-    useKeyboard = false;
+    calibrationPoint = 0;
 
-    tft.setRotation(SCREEN_ROTATION);
-
-    Serial.println("[TOUCH] Init TFT_eSPI");
-    Serial.print("[TOUCH] Rotation=");
-    Serial.println(SCREEN_ROTATION);
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
 
     Serial.println(
         "[TOUCH] Calibration automatique ACTIVE"
     );
+}
 
-    loadPreviousCalibration();
+// ============================================================
+// ECRAN DE CHOIX
+// ============================================================
 
-    drawCalibrationChoiceScreen();
-
-    Serial.println(
-        "[TOUCH] Attente choix utilisateur"
+static void drawButton(
+    int16_t x,
+    int16_t y,
+    int16_t w,
+    int16_t h,
+    uint16_t color,
+    const char* text
+)
+{
+    tft.fillRoundRect(
+        x,
+        y,
+        w,
+        h,
+        8,
+        color
     );
+
+    tft.drawRoundRect(
+        x,
+        y,
+        w,
+        h,
+        8,
+        COLOR_WHITE
+    );
+
+    tft.setTextColor(
+        COLOR_WHITE,
+        color
+    );
+
+    tft.setTextSize(2);
+
+    int16_t textWidth =
+        strlen(text) * 12;
+
+    int16_t tx =
+        x + (w - textWidth) / 2;
+
+    int16_t ty =
+        y + (h - 16) / 2;
+
+    tft.setCursor(
+        tx,
+        ty
+    );
+
+    tft.print(text);
 }
 
-// ============================================================
-// ZONE NOUVELLE CALIBRATION
-// ============================================================
-
-bool isNewCalibrationZone(
-    uint16_t x,
-    uint16_t y
-)
+static void drawCalibrationChoiceScreen()
 {
-    return
-        x >= CALIBRATION_NEW_X &&
-        x < CALIBRATION_NEW_X + CALIBRATION_NEW_W &&
-        y >= CALIBRATION_NEW_Y &&
-        y < CALIBRATION_NEW_Y + CALIBRATION_NEW_H;
-}
+    tft.fillScreen(
+        COLOR_BLACK
+    );
 
-// ============================================================
-// ZONE CONFIG PRECEDENTE
-// ============================================================
+    tft.setTextColor(
+        COLOR_WHITE,
+        COLOR_BLACK
+    );
 
-bool isPreviousCalibrationZone(
-    uint16_t x,
-    uint16_t y
-)
-{
-    return
-        x >= CALIBRATION_REUSE_X &&
-        x < CALIBRATION_REUSE_X + CALIBRATION_REUSE_W &&
-        y >= CALIBRATION_REUSE_Y &&
-        y < CALIBRATION_REUSE_Y + CALIBRATION_REUSE_H;
+    tft.setTextSize(2);
+
+    tft.setCursor(
+        35,
+        20
+    );
+
+    tft.print(
+        "CONFIGURATION TOUCH"
+    );
+
+    drawButton(
+        CALIBRATION_NEW_X,
+        CALIBRATION_NEW_Y,
+        CALIBRATION_NEW_W,
+        CALIBRATION_NEW_H,
+        COLOR_BLUE,
+        "NOUVELLE CALIBRATION"
+    );
+
+    drawButton(
+        CALIBRATION_REUSE_X,
+        CALIBRATION_REUSE_Y,
+        CALIBRATION_REUSE_W,
+        CALIBRATION_REUSE_H,
+        COLOR_GREEN,
+        "CONFIG PRECEDENTE"
+    );
 }
 
 // ============================================================
@@ -251,34 +187,64 @@ bool touchCalibrationChoice()
 {
     drawCalibrationChoiceScreen();
 
-    calibrationState = TOUCH_CALIBRATION_CHOICE;
-    calibrationRunning = false;
-    calibrationComplete = false;
-    useKeyboard = false;
+    calibrationState =
+        TOUCH_CALIBRATION_CHOICE;
 
-    return true;
+    Serial.println(
+        "[TOUCH] Attente choix utilisateur"
+    );
+
+    return false;
 }
 
 // ============================================================
-// DEMARRAGE NOUVELLE CALIBRATION
+// ZONES
+// ============================================================
+
+bool isNewCalibrationZone(
+    uint16_t x,
+    uint16_t y
+)
+{
+    return (
+        x >= CALIBRATION_NEW_X &&
+        x < CALIBRATION_NEW_X +
+            CALIBRATION_NEW_W &&
+        y >= CALIBRATION_NEW_Y &&
+        y < CALIBRATION_NEW_Y +
+            CALIBRATION_NEW_H
+    );
+}
+
+bool isPreviousCalibrationZone(
+    uint16_t x,
+    uint16_t y
+)
+{
+    return (
+        x >= CALIBRATION_REUSE_X &&
+        x < CALIBRATION_REUSE_X +
+            CALIBRATION_REUSE_W &&
+        y >= CALIBRATION_REUSE_Y &&
+        y < CALIBRATION_REUSE_Y +
+            CALIBRATION_REUSE_H
+    );
+}
+
+// ============================================================
+// DEMARRER CALIBRATION
 // ============================================================
 
 void startTouchCalibration()
 {
-    Serial.println(
-        "[TOUCH] Lancement calibration"
-    );
-
-    calibrationRunning = true;
-    calibrationComplete = false;
-    useKeyboard = false;
-
     calibrationState =
         TOUCH_CALIBRATION_RUNNING;
 
-    tft.fillScreen(COLOR_BLACK);
+    calibrationPoint = 0;
 
-    tft.setTextDatum(MC_DATUM);
+    tft.fillScreen(
+        COLOR_BLACK
+    );
 
     tft.setTextColor(
         COLOR_WHITE,
@@ -287,23 +253,18 @@ void startTouchCalibration()
 
     tft.setTextSize(2);
 
-    tft.drawString(
-        "CALIBRATION",
-        SCREEN_WIDTH / 2,
-        30
+    tft.setCursor(
+        30,
+        20
     );
 
-    tft.setTextSize(1);
-
-    tft.drawString(
-        "Touchez les 4 cibles",
-        SCREEN_WIDTH / 2,
-        52
+    tft.print(
+        "CALIBRATION TOUCH"
     );
 
-    tft.setTextDatum(TL_DATUM);
-
-    delay(500);
+    Serial.println(
+        "[TOUCH] Lancement calibration"
+    );
 
     tft.calibrateTouch(
         calData,
@@ -312,56 +273,16 @@ void startTouchCalibration()
         15
     );
 
-    tft.setTouch(calData);
+    tft.setTouch(
+        calData
+    );
+
+    calibrationState =
+        TOUCH_CALIBRATION_DONE;
 
     Serial.println(
         "[TOUCH] Calibration terminee"
     );
-
-    Serial.print("[TOUCH] CAL0=");
-    Serial.println(calData[0]);
-
-    Serial.print("[TOUCH] CAL1=");
-    Serial.println(calData[1]);
-
-    Serial.print("[TOUCH] CAL2=");
-    Serial.println(calData[2]);
-
-    Serial.print("[TOUCH] CAL3=");
-    Serial.println(calData[3]);
-
-    Serial.print("[TOUCH] CAL4=");
-    Serial.println(calData[4]);
-
-    calibrationRunning = false;
-    calibrationComplete = true;
-
-    calibrationState =
-        TOUCH_CALIBRATION_KEYBOARD;
-
-    useKeyboard = true;
-}
-
-// ============================================================
-// REUTILISER CONFIG
-// ============================================================
-
-bool touchReusePreviousCalibration()
-{
-    loadPreviousCalibration();
-
-    calibrationRunning = false;
-    calibrationComplete = true;
-    useKeyboard = true;
-
-    calibrationState =
-        TOUCH_CALIBRATION_KEYBOARD;
-
-    Serial.println(
-        "[TOUCH] Passage au clavier"
-    );
-
-    return true;
 }
 
 // ============================================================
@@ -373,46 +294,79 @@ bool touchCalibrationUpdate(
     uint16_t y
 )
 {
-    if (calibrationState !=
-        TOUCH_CALIBRATION_CHOICE)
+    if (
+        calibrationState ==
+        TOUCH_CALIBRATION_CHOICE
+    )
     {
+        Serial.print(
+            "[TOUCH SELECT] X="
+        );
+        Serial.print(x);
+
+        Serial.print(
+            " Y="
+        );
+        Serial.println(y);
+
+        if (isNewCalibrationZone(x, y))
+        {
+            Serial.println(
+                "[TOUCH] CHOIX = NOUVELLE CALIBRATION"
+            );
+
+            startTouchCalibration();
+
+            return true;
+        }
+
+        if (isPreviousCalibrationZone(x, y))
+        {
+            Serial.println(
+                "[TOUCH] CHOIX = CONFIG PRECEDENTE"
+            );
+
+            if (loadPreviousCalibration())
+            {
+                Serial.println(
+                    "[TOUCH] Passage au clavier"
+                );
+
+                return true;
+            }
+        }
+
         return false;
     }
 
-    Serial.print("[TOUCH SELECT] X=");
-    Serial.print(x);
-    Serial.print(" Y=");
-    Serial.println(y);
+    return (
+        calibrationState ==
+        TOUCH_CALIBRATION_DONE ||
+        calibrationState ==
+        TOUCH_CALIBRATION_REUSE
+    );
+}
 
-    // --------------------------------------------------------
-    // NOUVELLE CALIBRATION
-    // --------------------------------------------------------
+// ============================================================
+// ETAT
+// ============================================================
 
-    if (isNewCalibrationZone(x, y))
-    {
-        Serial.println(
-            "[TOUCH] CHOIX = NOUVELLE CALIBRATION"
-        );
+bool touchCalibrationActive()
+{
+    return (
+        calibrationState ==
+        TOUCH_CALIBRATION_RUNNING ||
+        calibrationState ==
+        TOUCH_CALIBRATION_CHOICE
+    );
+}
 
-        startTouchCalibration();
-
-        return true;
-    }
-
-    // --------------------------------------------------------
-    // CONFIG PRECEDENTE
-    // --------------------------------------------------------
-
-    if (isPreviousCalibrationZone(x, y))
-    {
-        Serial.println(
-            "[TOUCH] CHOIX = CONFIG PRECEDENTE"
-        );
-
-        touchReusePreviousCalibration();
-
-        return true;
-    }
-
-    return false;
+bool touchCalibrationFinished()
+{
+    return (
+        calibrationState ==
+        TOUCH_CALIBRATION_DONE ||
+        calibrationState ==
+        TOUCH_CALIBRATION_REUSE
+    );
 }

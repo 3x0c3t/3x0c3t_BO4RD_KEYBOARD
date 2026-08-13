@@ -1,11 +1,11 @@
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#ifndef BO4RD_KEYBOARD_MODULE_H
+#define BO4RD_KEYBOARD_MODULE_H
 
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 
 // ============================================================
-// MODES DU CLAVIER
+// MODES
 // ============================================================
 
 enum KeyboardMode
@@ -16,19 +16,31 @@ enum KeyboardMode
 };
 
 // ============================================================
-// API CLAVIER
+// INITIALISATION
 // ============================================================
 
 void keyboardInit();
 
 void keyboardBegin();
 
+// ============================================================
+// AFFICHAGE
+// ============================================================
+
 void keyboardDraw();
+
+// ============================================================
+// TRAITEMENT TOUCH
+// ============================================================
 
 void keyboardUpdate(
     int16_t x,
     int16_t y
 );
+
+// ============================================================
+// MODE
+// ============================================================
 
 void keyboardSetMode(
     KeyboardMode mode
@@ -36,12 +48,20 @@ void keyboardSetMode(
 
 KeyboardMode keyboardGetMode();
 
+// ============================================================
+// ACTIONS
+// ============================================================
+
 void keyboardDelete();
 
 void keyboardValidate();
 
-const String& keyboardGetText();
-
 void keyboardClear();
+
+// ============================================================
+// TEXTE
+// ============================================================
+
+const String& keyboardGetText();
 
 #endif

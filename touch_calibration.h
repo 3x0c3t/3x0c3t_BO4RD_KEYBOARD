@@ -1,11 +1,11 @@
-#ifndef TOUCH_CALIBRATION_H
-#define TOUCH_CALIBRATION_H
+#ifndef BO4RD_TOUCH_CALIBRATION_H
+#define BO4RD_TOUCH_CALIBRATION_H
 
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 
 // ============================================================
-// ETATS
+// ETAT CALIBRATION
 // ============================================================
 
 enum TouchCalibrationState
@@ -27,12 +27,10 @@ void touchCalibrationInit();
 // ECRAN DE CHOIX
 // ============================================================
 
-// Retourne true si une calibration doit être lancée.
-// Retourne false si la configuration précédente est utilisée.
 bool touchCalibrationChoice();
 
 // ============================================================
-// TRAITEMENT DU TOUCH
+// TRAITEMENT TOUCH
 // ============================================================
 
 bool touchCalibrationUpdate(
@@ -41,7 +39,7 @@ bool touchCalibrationUpdate(
 );
 
 // ============================================================
-// CONFIGURATION PRECEDENTE
+// ANCIENNE CALIBRATION
 // ============================================================
 
 bool loadPreviousCalibration();
