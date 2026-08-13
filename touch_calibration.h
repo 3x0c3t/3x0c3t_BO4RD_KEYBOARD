@@ -20,10 +20,11 @@ void touchCalibrationChoice();
 // ============================================================
 
 bool touchCalibrationActive();
+
 bool touchCalibrationFinished();
 
 // ============================================================
-// TRAITEMENT TACTILE
+// TRAITEMENT TOUCH
 // ============================================================
 
 bool touchCalibrationUpdate(
@@ -36,10 +37,6 @@ bool touchCalibrationUpdate(
 // ============================================================
 
 void startTouchCalibration();
-
-// ============================================================
-// CONFIGURATION PRECEDENTE
-// ============================================================
 
 bool loadPreviousCalibration();
 

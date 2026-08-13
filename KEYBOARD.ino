@@ -24,12 +24,13 @@ bool keyboardStarted = false;
 void setup()
 {
     Serial.begin(115200);
+
     delay(500);
 
     Serial.println();
     Serial.println();
     Serial.println("================================");
-    Serial.println("  3x0c3t BO4RD KEYBOARD v1.0");
+    Serial.println("  3x0c3t BO4RD KEYBOARD");
     Serial.println("================================");
 
     // --------------------------------------------------------
@@ -40,58 +41,75 @@ void setup()
 
     tft.init();
 
-    // Rotation UNIQUE du projet
-    tft.setRotation(SCREEN_ROTATION);
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
 
-    tft.fillScreen(COLOR_BLACK);
+    tft.fillScreen(
+        COLOR_BLACK
+    );
 
-    Serial.println("[TFT] Initialisation OK");
+    Serial.println("[TFT] OK");
 
     // --------------------------------------------------------
-    // DIAGNOSTIC RESOLUTION REELLE
+    // DIAGNOSTIC
     // --------------------------------------------------------
 
     Serial.println();
-    Serial.println("[TFT] DIAGNOSTIC");
+    Serial.println("[TFT] Configuration");
 
-    Serial.print("[TFT] Rotation demandee = ");
-    Serial.println(SCREEN_ROTATION);
+    Serial.print("[TFT] Rotation = ");
+    Serial.println(
+        SCREEN_ROTATION
+    );
 
-    Serial.print("[TFT] Largeur reelle = ");
-    Serial.println(tft.width());
-
-    Serial.print("[TFT] Hauteur reelle = ");
-    Serial.println(tft.height());
-
-    Serial.print("[TFT] Configuration = ");
-    Serial.print(SCREEN_WIDTH);
+    Serial.print("[TFT] Taille attendue = ");
+    Serial.print(
+        SCREEN_WIDTH
+    );
     Serial.print(" x ");
-    Serial.println(SCREEN_HEIGHT);
+    Serial.println(
+        SCREEN_HEIGHT
+    );
+
+    Serial.print("[TFT] Taille reelle = ");
+    Serial.print(
+        tft.width()
+    );
+    Serial.print(" x ");
+    Serial.println(
+        tft.height()
+    );
 
     if (
         tft.width() == SCREEN_WIDTH &&
         tft.height() == SCREEN_HEIGHT
     )
     {
-        Serial.println("[TFT] RESOLUTION = OK");
+        Serial.println(
+            "[TFT] RESOLUTION OK"
+        );
     }
     else
     {
-        Serial.println("[TFT] RESOLUTION = ERREUR");
-        Serial.println("[TFT] La configuration TFT_eSPI ne correspond pas");
+        Serial.println(
+            "[TFT] ERREUR RESOLUTION"
+        );
     }
 
     // --------------------------------------------------------
-    // TEST VISUEL PORTRAIT
+    // TEST VISUEL
     // --------------------------------------------------------
 
-    tft.fillScreen(COLOR_BLACK);
+    tft.fillScreen(
+        COLOR_BLACK
+    );
 
     tft.drawRect(
         0,
         0,
-        tft.width(),
-        tft.height(),
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
         COLOR_WHITE
     );
 
@@ -104,7 +122,7 @@ void setup()
     );
 
     tft.fillRect(
-        tft.width() - 20,
+        SCREEN_WIDTH - 20,
         0,
         20,
         20,
@@ -113,15 +131,15 @@ void setup()
 
     tft.fillRect(
         0,
-        tft.height() - 20,
+        SCREEN_HEIGHT - 20,
         20,
         20,
         COLOR_BLUE
     );
 
     tft.fillRect(
-        tft.width() - 20,
-        tft.height() - 20,
+        SCREEN_WIDTH - 20,
+        SCREEN_HEIGHT - 20,
         20,
         20,
         COLOR_YELLOW
@@ -134,17 +152,44 @@ void setup()
 
     tft.setTextSize(2);
 
-    tft.setCursor(35, 30);
-    tft.print("TFT PORTRAIT");
+    tft.setCursor(
+        35,
+        30
+    );
 
-    tft.setCursor(35, 55);
-    tft.print("ROTATION = ");
-    tft.print(SCREEN_ROTATION);
+    tft.print(
+        "TFT PORTRAIT"
+    );
 
-    tft.setCursor(35, 80);
-    tft.print(tft.width());
-    tft.print(" x ");
-    tft.print(tft.height());
+    tft.setCursor(
+        35,
+        55
+    );
+
+    tft.print(
+        "ROTATION "
+    );
+
+    tft.print(
+        SCREEN_ROTATION
+    );
+
+    tft.setCursor(
+        35,
+        80
+    );
+
+    tft.print(
+        SCREEN_WIDTH
+    );
+
+    tft.print(
+        " x "
+    );
+
+    tft.print(
+        SCREEN_HEIGHT
+    );
 
     delay(1500);
 
@@ -153,21 +198,17 @@ void setup()
     // --------------------------------------------------------
 
     Serial.println();
-    Serial.println("[TOUCH] Initialisation");
+    Serial.println("[TOUCH] Initialisation...");
 
     touchCalibrationInit();
 
-    Serial.println("[TOUCH] Initialisation OK");
+    Serial.println("[TOUCH] OK");
 
     // --------------------------------------------------------
-    // CHOIX CALIBRATION
+    // ECRAN CALIBRATION
     // --------------------------------------------------------
-
-    Serial.println("[TOUCH] Ecran choix calibration");
 
     touchCalibrationChoice();
-
-    keyboardStarted = false;
 }
 
 // ============================================================
@@ -179,11 +220,13 @@ void loop()
     uint16_t x = 0;
     uint16_t y = 0;
 
-    // ========================================================
+    // --------------------------------------------------------
     // CALIBRATION / CHOIX
-    // ========================================================
+    // --------------------------------------------------------
 
-    if (touchCalibrationActive())
+    if (
+        touchCalibrationActive()
+    )
     {
         if (
             tft.getTouch(
@@ -193,19 +236,27 @@ void loop()
             )
         )
         {
-            Serial.print("[TOUCH] X=");
+            Serial.print(
+                "[TOUCH] X="
+            );
+
             Serial.print(x);
 
-            Serial.print(" Y=");
+            Serial.print(
+                " Y="
+            );
+
             Serial.println(y);
 
-            if (touchCalibrationUpdate(x, y))
+            if (
+                touchCalibrationUpdate(
+                    x,
+                    y
+                )
+            )
             {
-                Serial.println(
-                    "[TOUCH] Configuration terminee"
-                );
-
                 keyboardInit();
+
                 keyboardDraw();
 
                 keyboardStarted = true;
@@ -217,9 +268,9 @@ void loop()
         return;
     }
 
-    // ========================================================
+    // --------------------------------------------------------
     // CLAVIER
-    // ========================================================
+    // --------------------------------------------------------
 
     if (!keyboardStarted)
     {
@@ -234,15 +285,21 @@ void loop()
         )
     )
     {
-        Serial.print("[TOUCH] X=");
+        Serial.print(
+            "[TOUCH] X="
+        );
+
         Serial.print(x);
 
-        Serial.print(" Y=");
+        Serial.print(
+            " Y="
+        );
+
         Serial.println(y);
 
         keyboardUpdate(
-            (int16_t)x,
-            (int16_t)y
+            x,
+            y
         );
 
         delay(150);

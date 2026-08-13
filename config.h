@@ -2,10 +2,9 @@
 #define BO4RD_KEYBOARD_CONFIG_H
 
 #include <Arduino.h>
-#include <TFT_eSPI.h>
 
 // ============================================================
-// ECRAN
+// ECRAN TFT
 // ============================================================
 
 #define SCREEN_WIDTH       240
@@ -13,21 +12,7 @@
 #define SCREEN_ROTATION    2
 
 // ============================================================
-// COULEURS
-// ============================================================
-
-#define COLOR_BLACK        TFT_BLACK
-#define COLOR_WHITE        TFT_WHITE
-#define COLOR_RED          TFT_RED
-#define COLOR_GREEN        TFT_GREEN
-#define COLOR_BLUE         TFT_BLUE
-#define COLOR_YELLOW       TFT_YELLOW
-#define COLOR_CYAN         TFT_CYAN
-#define COLOR_MAGENTA      TFT_MAGENTA
-#define COLOR_GREY        TFT_DARKGREY
-
-// ============================================================
-// TOUCH
+// TOUCH XPT2046
 // ============================================================
 
 #define TOUCH_THRESHOLD    600
@@ -43,7 +28,21 @@
 #define TOUCH_PREVIOUS_CAL_4  3387
 
 // ============================================================
-// ECRAN CHOIX CALIBRATION
+// COULEURS
+// ============================================================
+
+#define COLOR_BLACK        TFT_BLACK
+#define COLOR_WHITE        TFT_WHITE
+#define COLOR_RED          TFT_RED
+#define COLOR_GREEN        TFT_GREEN
+#define COLOR_BLUE         TFT_BLUE
+#define COLOR_YELLOW       TFT_YELLOW
+#define COLOR_CYAN         TFT_CYAN
+#define COLOR_MAGENTA      TFT_MAGENTA
+#define COLOR_GREY         TFT_DARKGREY
+
+// ============================================================
+// ECRAN DE CHOIX CALIBRATION
 // ============================================================
 
 #define CALIBRATION_NEW_X     20
@@ -57,24 +56,27 @@
 #define CALIBRATION_REUSE_H   55
 
 // ============================================================
-// CLAVIER
+// ZONE CLAVIER
 // ============================================================
 
 #define KEYBOARD_X            0
 #define KEYBOARD_Y            58
-#define KEYBOARD_W            240
+
+#define KEYBOARD_W            SCREEN_WIDTH
 #define KEYBOARD_HEIGHT       208
 
 #define KEYBOARD_ROWS         4
 #define KEYBOARD_COLS         10
+
 #define KEYBOARD_MAX_LENGTH   32
 
 // ============================================================
-// ZONE TEXTE
+// ZONE SAISIE
 // ============================================================
 
 #define INPUT_X               5
 #define INPUT_Y               5
+
 #define INPUT_W               165
 #define INPUT_H               42
 
@@ -97,10 +99,9 @@
 #define BTN_OK_H              42
 
 // ============================================================
-// AFFICHAGE
+// TEXTE
 // ============================================================
 
 #define KEYBOARD_TEXT_SIZE    2
-#define KEYBOARD_BORDER       2
 
 #endif

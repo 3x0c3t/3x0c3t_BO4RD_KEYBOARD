@@ -4,15 +4,20 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 
+// ============================================================
+// TFT
+// ============================================================
+
 extern TFT_eSPI tft;
 
 // ============================================================
 // ETAT
 // ============================================================
 
-static KeyboardMode currentMode = KEYBOARD_ALPHA;
+static KeyboardMode currentMode =
+    KEYBOARD_ALPHA;
 
-static String keyboardText = "";
+static String keyboardText;
 
 // ============================================================
 // TOUCHES ALPHA
@@ -80,8 +85,9 @@ static const char* symbolKeys[KEYBOARD_ROWS][KEYBOARD_COLS] =
     },
 
     {
-        "-", "_", "+", "=", "/",
-        "\\", "|", "<", ">", "~"
+        "-", "_", "+", "=",
+        "/", "\\", "|", "<", ">",
+        "~"
     },
 
     {
@@ -90,27 +96,62 @@ static const char* symbolKeys[KEYBOARD_ROWS][KEYBOARD_COLS] =
     },
 
     {
-        ",", ";", ":", "?", " ",
-        " ", " ", " ", " ", " "
+        ",", ";", ":", "?",
+        " ", " ", " ", " ", " ", " "
     }
 };
 
 // ============================================================
-// DIMENSIONS TOUCHES
+// DIMENSIONS
 // ============================================================
 
 static int16_t keyWidth()
 {
-    return KEYBOARD_W / KEYBOARD_COLS;
+    return KEYBOARD_W /
+           KEYBOARD_COLS;
 }
 
 static int16_t keyHeight()
 {
-    return KEYBOARD_HEIGHT / KEYBOARD_ROWS;
+    return KEYBOARD_HEIGHT /
+           KEYBOARD_ROWS;
 }
 
 // ============================================================
-// TEXTE
+// RECUPERATION TOUCHE
+// ============================================================
+
+static const char* getKey(
+    uint8_t row,
+    uint8_t col
+)
+{
+    if (
+        row >= KEYBOARD_ROWS ||
+        col >= KEYBOARD_COLS
+    )
+    {
+        return "";
+    }
+
+    switch (currentMode)
+    {
+        case KEYBOARD_ALPHA:
+            return alphaKeys[row][col];
+
+        case KEYBOARD_NUMERIC:
+            return numericKeys[row][col];
+
+        case KEYBOARD_SYMBOLS:
+            return symbolKeys[row][col];
+
+        default:
+            return "";
+    }
+}
+
+// ============================================================
+// ZONE TEXTE
 // ============================================================
 
 static void drawInputArea()
@@ -225,39 +266,6 @@ static void drawOKButton()
 }
 
 // ============================================================
-// MODE
-// ============================================================
-
-static const char* getKey(
-    uint8_t row,
-    uint8_t col
-)
-{
-    if (
-        row >= KEYBOARD_ROWS ||
-        col >= KEYBOARD_COLS
-    )
-    {
-        return "";
-    }
-
-    switch (currentMode)
-    {
-        case KEYBOARD_ALPHA:
-            return alphaKeys[row][col];
-
-        case KEYBOARD_NUMERIC:
-            return numericKeys[row][col];
-
-        case KEYBOARD_SYMBOLS:
-            return symbolKeys[row][col];
-
-        default:
-            return "";
-    }
-}
-
-// ============================================================
 // DESSIN CLAVIER
 // ============================================================
 
@@ -268,10 +276,14 @@ void keyboardDraw()
     );
 
     drawInputArea();
+
     drawDeleteButton();
 
-    int16_t kw = keyWidth();
-    int16_t kh = keyHeight();
+    const int16_t width =
+        keyWidth();
+
+    const int16_t height =
+        keyHeight();
 
     for (
         uint8_t row = 0;
@@ -285,32 +297,35 @@ void keyboardDraw()
             col++
         )
         {
-            int16_t x =
+            const int16_t x =
                 KEYBOARD_X +
-                col * kw;
+                col * width;
 
-            int16_t y =
+            const int16_t y =
                 KEYBOARD_Y +
-                row * kh;
+                row * height;
 
             tft.fillRect(
                 x + 1,
                 y + 1,
-                kw - 2,
-                kh - 2,
+                width - 2,
+                height - 2,
                 COLOR_GREY
             );
 
             tft.drawRect(
                 x,
                 y,
-                kw,
-                kh,
+                width,
+                height,
                 COLOR_WHITE
             );
 
             const char* key =
-                getKey(row, col);
+                getKey(
+                    row,
+                    col
+                );
 
             tft.setTextColor(
                 COLOR_WHITE,
@@ -319,23 +334,25 @@ void keyboardDraw()
 
             tft.setTextSize(2);
 
-            int16_t textWidth =
+            const int16_t textWidth =
                 strlen(key) * 12;
 
-            int16_t tx =
+            const int16_t tx =
                 x +
-                (kw - textWidth) / 2;
+                (width - textWidth) / 2;
 
-            int16_t ty =
+            const int16_t ty =
                 y +
-                (kh - 16) / 2;
+                (height - 16) / 2;
 
             tft.setCursor(
                 tx,
                 ty
             );
 
-            tft.print(key);
+            tft.print(
+                key
+            );
         }
     }
 
@@ -358,13 +375,14 @@ void keyboardInit()
         KEYBOARD_ALPHA;
 
     Serial.println(
-        "[KEYBOARD] Init OK"
+        "[KEYBOARD] OK"
     );
 }
 
 void keyboardBegin()
 {
     keyboardInit();
+
     keyboardDraw();
 }
 
@@ -405,25 +423,12 @@ void keyboardDelete()
 void keyboardValidate()
 {
     Serial.print(
-        "[KEYBOARD] Validation : "
+        "[KEYBOARD] VALIDATION = "
     );
 
     Serial.println(
         keyboardText
     );
-
-    if (
-        keyboardText.length() > 0
-    )
-    {
-        Serial.print(
-            "[KEYBOARD] Texte valide : "
-        );
-
-        Serial.println(
-            keyboardText
-        );
-    }
 }
 
 // ============================================================
@@ -438,7 +443,7 @@ void keyboardClear()
 }
 
 // ============================================================
-// UPDATE TACTILE
+// TOUCH CLAVIER
 // ============================================================
 
 void keyboardUpdate(
@@ -447,7 +452,7 @@ void keyboardUpdate(
 )
 {
     Serial.print(
-        "[KEYBOARD] Analyse X="
+        "[KEYBOARD] X="
     );
 
     Serial.print(x);
@@ -469,10 +474,6 @@ void keyboardUpdate(
         y < BTN_DEL_Y + BTN_DEL_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] TOUCHE = DELETE"
-        );
-
         keyboardDelete();
 
         return;
@@ -489,10 +490,6 @@ void keyboardUpdate(
         y < BTN_OK_Y + BTN_OK_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] TOUCHE = OK"
-        );
-
         keyboardValidate();
 
         return;
@@ -512,21 +509,39 @@ void keyboardUpdate(
         return;
     }
 
-    int16_t kw =
+    const int16_t width =
         keyWidth();
 
-    int16_t kh =
+    const int16_t height =
         keyHeight();
 
-    uint8_t col =
-        (x - KEYBOARD_X) / kw;
+    const uint8_t col =
+        (
+            x - KEYBOARD_X
+        ) / width;
 
-    uint8_t row =
-        (y - KEYBOARD_Y) / kh;
+    const uint8_t row =
+        (
+            y - KEYBOARD_Y
+        ) / height;
 
     if (
         row >= KEYBOARD_ROWS ||
         col >= KEYBOARD_COLS
+    )
+    {
+        return;
+    }
+
+    const char* key =
+        getKey(
+            row,
+            col
+        );
+
+    if (
+        key == nullptr ||
+        strlen(key) == 0
     )
     {
         return;
@@ -542,21 +557,10 @@ void keyboardUpdate(
         " COL="
     );
 
-    Serial.println(col);
-
-    const char* key =
-        getKey(row, col);
-
-    if (
-        key == nullptr ||
-        strlen(key) == 0
-    )
-    {
-        return;
-    }
+    Serial.print(col);
 
     Serial.print(
-        "[KEYBOARD] TOUCHE = "
+        " KEY="
     );
 
     Serial.println(key);
@@ -568,18 +572,6 @@ void keyboardUpdate(
     {
         keyboardText += key;
     }
-
-    Serial.print(
-        "[KEYBOARD] TEXTE = \""
-    );
-
-    Serial.print(
-        keyboardText
-    );
-
-    Serial.println(
-        "\""
-    );
 
     drawInputArea();
 }

@@ -1,10 +1,10 @@
-#ifndef KEYBOARD_MODULE_H
-#define KEYBOARD_MODULE_H
+#ifndef BO4RD_KEYBOARD_H
+#define BO4RD_KEYBOARD_H
 
 #include <Arduino.h>
 
 // ============================================================
-// MODE DU CLAVIER
+// MODES
 // ============================================================
 
 enum KeyboardMode
@@ -18,8 +18,9 @@ enum KeyboardMode
 // INITIALISATION
 // ============================================================
 
-void keyboardBegin();
 void keyboardInit();
+
+void keyboardBegin();
 
 // ============================================================
 // AFFICHAGE
@@ -28,7 +29,7 @@ void keyboardInit();
 void keyboardDraw();
 
 // ============================================================
-// GESTION TACTILE
+// TOUCH
 // ============================================================
 
 void keyboardUpdate(
@@ -41,7 +42,9 @@ void keyboardUpdate(
 // ============================================================
 
 void keyboardDelete();
+
 void keyboardValidate();
+
 void keyboardClear();
 
 // ============================================================
