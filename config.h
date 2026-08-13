@@ -21,10 +21,62 @@
 // Calibration tactile
 //
 // 1 = calibration à chaque démarrage
-// 0 = utilisation des valeurs précédentes
+// 0 = pas de calibration
 // ------------------------------------------------------------
 
 #define TOUCH_CALIBRATION 1
+
+
+// ------------------------------------------------------------
+// Calibration : bouton reprise configuration précédente
+// ------------------------------------------------------------
+
+#define TOUCH_REUSE_X 20
+#define TOUCH_REUSE_Y 105
+#define TOUCH_REUSE_W 200
+#define TOUCH_REUSE_H 42
+
+
+// ------------------------------------------------------------
+// Calibration : positions des cibles
+// ------------------------------------------------------------
+
+// Cible haut gauche
+#define TOUCH_TARGET_1_X 20
+#define TOUCH_TARGET_1_Y 20
+
+// Cible haut droite
+#define TOUCH_TARGET_2_X 220
+#define TOUCH_TARGET_2_Y 20
+
+// Cible bas gauche
+#define TOUCH_TARGET_3_X 20
+#define TOUCH_TARGET_3_Y 300
+
+// Cible bas droite
+#define TOUCH_TARGET_4_X 220
+#define TOUCH_TARGET_4_Y 300
+
+
+// ------------------------------------------------------------
+// Calibration : apparence des cibles
+// ------------------------------------------------------------
+
+#define TOUCH_TARGET_RADIUS 10
+#define TOUCH_TARGET_CROSS  6
+
+
+// ------------------------------------------------------------
+// Anciennes valeurs de calibration
+//
+// Dernières valeurs fonctionnelles connues
+// ------------------------------------------------------------
+
+#define TOUCH_PREVIOUS_CAL_0 294
+#define TOUCH_PREVIOUS_CAL_1 3385
+#define TOUCH_PREVIOUS_CAL_2 442
+#define TOUCH_PREVIOUS_CAL_3 328
+#define TOUCH_PREVIOUS_CAL_4 3380
 
 
 // ------------------------------------------------------------
@@ -36,6 +88,11 @@
 #define KEYBOARD_W 240
 #define KEYBOARD_H 182
 
+
+// ------------------------------------------------------------
+// Clavier
+// ------------------------------------------------------------
+
 #define KEYBOARD_ROWS 4
 #define KEYBOARD_COLS 10
 
@@ -45,7 +102,7 @@
 // ------------------------------------------------------------
 
 #define INPUT_X 5
-#define INPUT_Y 8
+#define INPUT_Y 92
 #define INPUT_W 230
 #define INPUT_H 40
 
@@ -55,7 +112,7 @@
 // ------------------------------------------------------------
 
 #define BTN_DEL_X 5
-#define BTN_DEL_Y 50
+#define BTN_DEL_Y 45
 #define BTN_DEL_W 110
 #define BTN_DEL_H 40
 
@@ -65,30 +122,9 @@
 // ------------------------------------------------------------
 
 #define BTN_OK_X 120
-#define BTN_OK_Y 50
+#define BTN_OK_Y 45
 #define BTN_OK_W 115
 #define BTN_OK_H 40
-
-
-// ------------------------------------------------------------
-// Zone de réutilisation calibration
-// ------------------------------------------------------------
-
-#define TOUCH_REUSE_X 20
-#define TOUCH_REUSE_Y 270
-#define TOUCH_REUSE_W 200
-#define TOUCH_REUSE_H 35
-
-
-// ------------------------------------------------------------
-// Valeurs de calibration précédentes
-// ------------------------------------------------------------
-
-#define TOUCH_PREVIOUS_CAL_0 294
-#define TOUCH_PREVIOUS_CAL_1 3385
-#define TOUCH_PREVIOUS_CAL_2 442
-#define TOUCH_PREVIOUS_CAL_3 3380
-#define TOUCH_PREVIOUS_CAL_4 2
 
 
 // ------------------------------------------------------------
