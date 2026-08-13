@@ -3,69 +3,75 @@
 
 #include <Arduino.h>
 
-// ------------------------------------------------------------
-// Initialisation
-// ------------------------------------------------------------
+// ============================================================
+// ETAT
+// ============================================================
+
+enum TouchCalibrationState
+{
+    TOUCH_CALIBRATION_CHOICE = 0,
+    TOUCH_CALIBRATION_RUNNING,
+    TOUCH_CALIBRATION_DONE,
+    TOUCH_CALIBRATION_KEYBOARD
+};
+
+// ============================================================
+// INITIALISATION
+// ============================================================
 
 void touchCalibrationInit();
 
+// ============================================================
+// ECRAN DE CHOIX
+// ============================================================
 
-// ------------------------------------------------------------
-// Choix utilisateur
-//
-// Retourne true lorsque le choix est termine.
-// ------------------------------------------------------------
+bool touchCalibrationChoice();
 
-bool touchCalibrationChoice(
-    uint16_t x,
-    uint16_t y
-);
-
-
-// ------------------------------------------------------------
-// Mise a jour pendant la calibration
-//
-// Retourne true lorsque la calibration est terminee.
-// ------------------------------------------------------------
+// ============================================================
+// MISE A JOUR
+// ============================================================
 
 bool touchCalibrationUpdate(
     uint16_t x,
     uint16_t y
 );
 
-
-// ------------------------------------------------------------
-// Lancement d'une nouvelle calibration
-// ------------------------------------------------------------
+// ============================================================
+// CALIBRATION
+// ============================================================
 
 void startTouchCalibration();
 
+// ============================================================
+// CONFIGURATION PRECEDENTE
+// ============================================================
 
-// ------------------------------------------------------------
-// Charger la calibration precedente
-// ------------------------------------------------------------
+bool touchReusePreviousCalibration();
 
 void loadPreviousCalibration();
 
-
-// ------------------------------------------------------------
-// Appliquer la calibration precedente
-// ------------------------------------------------------------
-
-void applyPreviousCalibration();
-
-
-// ------------------------------------------------------------
-// Etat
-// ------------------------------------------------------------
-
-bool touchCalibrationIsWaiting();
+// ============================================================
+// ETAT
+// ============================================================
 
 bool touchCalibrationIsRunning();
 
-bool touchCalibrationIsFinished();
+bool touchCalibrationIsComplete();
 
-bool touchCalibrationUsePrevious();
+bool touchCalibrationUseKeyboard();
 
+// ============================================================
+// ZONES
+// ============================================================
+
+bool isNewCalibrationZone(
+    uint16_t x,
+    uint16_t y
+);
+
+bool isPreviousCalibrationZone(
+    uint16_t x,
+    uint16_t y
+);
 
 #endif

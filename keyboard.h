@@ -3,20 +3,54 @@
 
 #include <Arduino.h>
 
+// ============================================================
+// MODES
+// ============================================================
+
 enum KeyboardMode
 {
     KEYBOARD_ALPHA = 0,
-    KEYBOARD_NUMERIC = 1
+    KEYBOARD_NUMERIC,
+    KEYBOARD_SPECIAL
 };
 
-void keyboardInit();
-void keyboardDraw();
-void keyboardUpdate(int16_t x, int16_t y);
+// ============================================================
+// INITIALISATION
+// ============================================================
 
-void keyboardSetMode(KeyboardMode mode);
+void keyboardInit();
+
+// ============================================================
+// AFFICHAGE
+// ============================================================
+
+void keyboardDraw();
+
+// ============================================================
+// TRAITEMENT TOUCH
+// ============================================================
+
+void keyboardUpdate(
+    int16_t x,
+    int16_t y
+);
+
+// ============================================================
+// MODE
+// ============================================================
+
+void keyboardSetMode(
+    KeyboardMode mode
+);
+
 KeyboardMode keyboardGetMode();
 
-const char* keyboardGetText();
+// ============================================================
+// TEXTE
+// ============================================================
+
+const String& keyboardGetText();
+
 void keyboardClear();
 
 #endif
