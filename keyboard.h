@@ -3,54 +3,35 @@
 
 #include <Arduino.h>
 
-// ============================================================
-// 3x0c3t BO4RD KEYBOARD v1.0
-// Interface clavier
-// ============================================================
-
 enum KeyboardMode
 {
-    KEYBOARD_ALPHA = 0,
+    KEYBOARD_ALPHA,
     KEYBOARD_NUMERIC
 };
 
-// ------------------------------------------------------------
-// Initialisation
-// ------------------------------------------------------------
 
-void keyboardInit();
 void keyboardBegin();
 
-// ------------------------------------------------------------
-// Affichage
-// ------------------------------------------------------------
+void keyboardInit();
 
 void keyboardDraw();
 
-// ------------------------------------------------------------
-// Gestion tactile
-// ------------------------------------------------------------
-
-void keyboardUpdate(int16_t x, int16_t y);
-
-// ------------------------------------------------------------
-// Gestion du texte
-// ------------------------------------------------------------
+void keyboardUpdate(
+    int16_t x,
+    int16_t y
+);
 
 void keyboardDelete();
+
 void keyboardValidate();
-void keyboardClear();
+
+void keyboardSetMode(
+    KeyboardMode mode
+);
+
+KeyboardMode keyboardGetMode();
 
 const char* keyboardGetText();
-void keyboardSetText(const char* text);
 
-bool keyboardHasText();
-
-// ------------------------------------------------------------
-// Mode clavier
-// ------------------------------------------------------------
-
-void keyboardSetMode(KeyboardMode mode);
-KeyboardMode keyboardGetMode();
 
 #endif

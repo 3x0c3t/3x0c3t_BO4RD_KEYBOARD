@@ -2,62 +2,70 @@
 #define TOUCH_CALIBRATION_H
 
 #include <Arduino.h>
-#include <TFT_eSPI.h>
 
-
-// ============================================================
-// DONNÉES CALIBRATION
-// ============================================================
-
-extern uint16_t calData[5];
-
-
-// ============================================================
-// INITIALISATION
-// ============================================================
+// ------------------------------------------------------------
+// Initialisation
+// ------------------------------------------------------------
 
 void touchCalibrationInit();
 
 
-// ============================================================
-// CHOIX CALIBRATION
-// ============================================================
+// ------------------------------------------------------------
+// Choix utilisateur
+//
+// Retourne true lorsque le choix est termine.
+// ------------------------------------------------------------
 
 bool touchCalibrationChoice(
     uint16_t x,
-    uint16_t y,
-    uint8_t &choice
+    uint16_t y
 );
 
-bool touchCalibrationChoiceActive();
+
+// ------------------------------------------------------------
+// Mise a jour pendant la calibration
+//
+// Retourne true lorsque la calibration est terminee.
+// ------------------------------------------------------------
+
+bool touchCalibrationUpdate(
+    uint16_t x,
+    uint16_t y
+);
 
 
-// ============================================================
-// CALIBRATION
-// ============================================================
+// ------------------------------------------------------------
+// Lancement d'une nouvelle calibration
+// ------------------------------------------------------------
 
 void startTouchCalibration();
 
 
-// ============================================================
-// CONFIGURATION PRÉCÉDENTE
-// ============================================================
+// ------------------------------------------------------------
+// Charger la calibration precedente
+// ------------------------------------------------------------
 
 void loadPreviousCalibration();
 
 
-// ============================================================
-// ZONES
-// ============================================================
+// ------------------------------------------------------------
+// Appliquer la calibration precedente
+// ------------------------------------------------------------
 
-bool isNewCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
+void applyPreviousCalibration();
 
-bool isPreviousCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
+
+// ------------------------------------------------------------
+// Etat
+// ------------------------------------------------------------
+
+bool touchCalibrationIsWaiting();
+
+bool touchCalibrationIsRunning();
+
+bool touchCalibrationIsFinished();
+
+bool touchCalibrationUsePrevious();
+
 
 #endif
