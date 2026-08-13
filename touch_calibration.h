@@ -5,6 +5,9 @@
 
 void touchCalibrationBegin();
 
-bool touchReadScreen(int16_t* x, int16_t* y);
+bool touchReadScreen(
+    int16_t* x,
+    int16_t* y
+);
 
 #endif

@@ -6,19 +6,19 @@
 #include <XPT2046_Touchscreen.h>
 
 // ============================================================
-// Broches
+// BROCHES
 // ============================================================
 
 #ifndef TOUCH_CS
-#define TOUCH_CS 0       // D3 / GPIO0
+#define TOUCH_CS 0
 #endif
 
 #ifndef TOUCH_IRQ
-#define TOUCH_IRQ 5      // D1 / GPIO5
+#define TOUCH_IRQ 5
 #endif
 
 #ifndef TFT_CS
-#define TFT_CS 15        // D8 / GPIO15
+#define TFT_CS 15
 #endif
 
 // ============================================================
@@ -33,7 +33,7 @@ static XPT2046_Touchscreen touch(
 static bool touchInitialized = false;
 
 // ============================================================
-// Calibration
+// CALIBRATION
 // ============================================================
 
 #define TOUCH_MIN_X 200
@@ -43,7 +43,7 @@ static bool touchInitialized = false;
 #define TOUCH_MAX_Y 3900
 
 // ============================================================
-// Initialisation
+// INITIALISATION
 // ============================================================
 
 void touchCalibrationBegin()
@@ -51,14 +51,14 @@ void touchCalibrationBegin()
     Serial.println("[TOUCH] Init");
 
     // --------------------------------------------------------
-    // CS TFT
+    // TFT CS
     // --------------------------------------------------------
 
     pinMode(TFT_CS, OUTPUT);
     digitalWrite(TFT_CS, HIGH);
 
     // --------------------------------------------------------
-    // CS TOUCH
+    // Touch CS
     // --------------------------------------------------------
 
     pinMode(TOUCH_CS, OUTPUT);
@@ -70,8 +70,6 @@ void touchCalibrationBegin()
 
     pinMode(TOUCH_IRQ, INPUT_PULLUP);
 
-    delay(50);
-
     // --------------------------------------------------------
     // SPI
     // --------------------------------------------------------
@@ -81,7 +79,7 @@ void touchCalibrationBegin()
     delay(50);
 
     // --------------------------------------------------------
-    // XPT2046
+    // Initialisation XPT2046
     // --------------------------------------------------------
 
     if (!touch.begin())
@@ -107,7 +105,7 @@ void touchCalibrationBegin()
 }
 
 // ============================================================
-// Lecture
+// LECTURE TACTILE
 // ============================================================
 
 bool touchReadScreen(
@@ -125,37 +123,25 @@ bool touchReadScreen(
         return false;
 
     // --------------------------------------------------------
-    // Le TFT doit être désélectionné
+    // LA BIBLIOTHEQUE GERE LA DETECTION
     // --------------------------------------------------------
 
-    digitalWrite(TFT_CS, HIGH);
-
-    // --------------------------------------------------------
-    // Vérification IRQ
-    // --------------------------------------------------------
-
-    if (digitalRead(TOUCH_IRQ) == HIGH)
-    {
+    if (!touch.touched())
         return false;
-    }
 
     // --------------------------------------------------------
-    // Lecture XPT2046
+    // LECTURE
     // --------------------------------------------------------
-
-    digitalWrite(TOUCH_CS, LOW);
 
     TS_Point p = touch.getPoint();
-
-    digitalWrite(TOUCH_CS, HIGH);
-
-    // --------------------------------------------------------
-    // Valeurs brutes
-    // --------------------------------------------------------
 
     int32_t rawX = p.x;
     int32_t rawY = p.y;
     int32_t rawZ = p.z;
+
+    // --------------------------------------------------------
+    // DEBUG
+    // --------------------------------------------------------
 
     Serial.print("[TOUCH RAW] X=");
     Serial.print(rawX);
@@ -167,21 +153,26 @@ bool touchReadScreen(
     Serial.println(rawZ);
 
     // --------------------------------------------------------
-    // Vérification
+    // VALIDATION
     // --------------------------------------------------------
 
-    if (rawX <= 0 ||
+    if (
+        rawX <= 0 ||
         rawX >= 4095 ||
         rawY <= 0 ||
-        rawY >= 4095)
+        rawY >= 4095
+    )
     {
         Serial.println("[TOUCH] RAW invalide");
 
         return false;
     }
 
-    if (rawZ <= 0 ||
-        rawZ >= 4095)
+    // --------------------------------------------------------
+    // PRESSION
+    // --------------------------------------------------------
+
+    if (rawZ <= 0)
     {
         Serial.println("[TOUCH] Z invalide");
 
@@ -189,7 +180,7 @@ bool touchReadScreen(
     }
 
     // --------------------------------------------------------
-    // Conversion
+    // CONVERSION
     // --------------------------------------------------------
 
     int32_t screenX = map(
@@ -208,6 +199,10 @@ bool touchReadScreen(
         0
     );
 
+    // --------------------------------------------------------
+    // LIMITES
+    // --------------------------------------------------------
+
     screenX = constrain(
         screenX,
         0,
@@ -222,6 +217,10 @@ bool touchReadScreen(
 
     *x = (int16_t)screenX;
     *y = (int16_t)screenY;
+
+    // --------------------------------------------------------
+    // RESULTAT
+    // --------------------------------------------------------
 
     Serial.print("[TOUCH] X=");
     Serial.print(*x);
