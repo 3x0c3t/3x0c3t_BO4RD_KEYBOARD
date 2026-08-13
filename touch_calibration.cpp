@@ -1,151 +1,197 @@
 #include "touch_calibration.h"
 #include "config.h"
 
+#include <Arduino.h>
 #include <SPI.h>
 #include <XPT2046_Touchscreen.h>
 
-/*
- * XPT2046
- *
- * SPI partagé avec le TFT.
- *
- * ESP8266 :
- * SCK  = GPIO14 / D5
- * MISO = GPIO12 / D6
- * MOSI = GPIO13 / D7
- *
- * Touch CS  = GPIO0 / D3
- * Touch IRQ = GPIO5 / D1
- */
+// ============================================================
+// Broches
+// ============================================================
 
 #ifndef TOUCH_CS
-#define TOUCH_CS 0
+#define TOUCH_CS 0       // D3 / GPIO0
 #endif
 
 #ifndef TOUCH_IRQ
-#define TOUCH_IRQ 5
+#define TOUCH_IRQ 5      // D1 / GPIO5
 #endif
 
-static XPT2046_Touchscreen touch(TOUCH_CS, TOUCH_IRQ);
+#ifndef TFT_CS
+#define TFT_CS 15        // D8 / GPIO15
+#endif
+
+// ============================================================
+// XPT2046
+// ============================================================
+
+static XPT2046_Touchscreen touch(
+    TOUCH_CS,
+    TOUCH_IRQ
+);
 
 static bool touchInitialized = false;
 
-/*
- * Calibration tactile.
- *
- * Ces valeurs doivent correspondre à la calibration
- * fonctionnelle utilisée précédemment sur ton écran.
- *
- * Si ta calibration actuelle utilise d'autres valeurs,
- * elles peuvent être remplacées ici.
- */
-#ifndef TOUCH_MIN_X
+// ============================================================
+// Calibration
+// ============================================================
+
 #define TOUCH_MIN_X 200
-#endif
-
-#ifndef TOUCH_MAX_X
 #define TOUCH_MAX_X 3900
-#endif
 
-#ifndef TOUCH_MIN_Y
 #define TOUCH_MIN_Y 200
-#endif
-
-#ifndef TOUCH_MAX_Y
 #define TOUCH_MAX_Y 3900
-#endif
+
+// ============================================================
+// Initialisation
+// ============================================================
 
 void touchCalibrationBegin()
 {
     Serial.println("[TOUCH] Init");
 
-    /*
-     * ESP8266 :
-     * SPI.begin() ne prend aucun argument.
-     *
-     * Le brochage SPI matériel est fixe :
-     * SCK  GPIO14
-     * MISO GPIO12
-     * MOSI GPIO13
-     */
+    // --------------------------------------------------------
+    // CS TFT
+    // --------------------------------------------------------
+
+    pinMode(TFT_CS, OUTPUT);
+    digitalWrite(TFT_CS, HIGH);
+
+    // --------------------------------------------------------
+    // CS TOUCH
+    // --------------------------------------------------------
+
+    pinMode(TOUCH_CS, OUTPUT);
+    digitalWrite(TOUCH_CS, HIGH);
+
+    // --------------------------------------------------------
+    // IRQ
+    // --------------------------------------------------------
+
+    pinMode(TOUCH_IRQ, INPUT_PULLUP);
+
+    delay(50);
+
+    // --------------------------------------------------------
+    // SPI
+    // --------------------------------------------------------
+
     SPI.begin();
 
     delay(50);
 
-    if (touch.begin())
-    {
-        touchInitialized = true;
+    // --------------------------------------------------------
+    // XPT2046
+    // --------------------------------------------------------
 
-        /*
-         * Le clavier utilise une rotation 2 :
-         * écran logique 240 x 320.
-         */
-        touch.setRotation(2);
-
-        Serial.println("[TOUCH] OK");
-    }
-    else
+    if (!touch.begin())
     {
         touchInitialized = false;
+
         Serial.println("[TOUCH] ERREUR");
+
+        return;
     }
+
+    touchInitialized = true;
+
+    touch.setRotation(2);
+
+    Serial.println("[TOUCH] OK");
+
+    Serial.print("[TOUCH] CS=");
+    Serial.println(TOUCH_CS);
+
+    Serial.print("[TOUCH] IRQ=");
+    Serial.println(TOUCH_IRQ);
 }
 
-/*
- * Lecture tactile et conversion vers les coordonnées écran.
- *
- * Retourne :
- *   true  = contact détecté
- *   false = aucun contact
- *
- * x et y sont des pointeurs afin que la fonction puisse
- * retourner les coordonnées calculées.
- */
-bool touchReadScreen(int16_t* x, int16_t* y)
+// ============================================================
+// Lecture
+// ============================================================
+
+bool touchReadScreen(
+    int16_t* x,
+    int16_t* y
+)
 {
     if (x == nullptr || y == nullptr)
-    {
         return false;
-    }
 
     *x = -1;
     *y = -1;
 
     if (!touchInitialized)
+        return false;
+
+    // --------------------------------------------------------
+    // Le TFT doit être désélectionné
+    // --------------------------------------------------------
+
+    digitalWrite(TFT_CS, HIGH);
+
+    // --------------------------------------------------------
+    // Vérification IRQ
+    // --------------------------------------------------------
+
+    if (digitalRead(TOUCH_IRQ) == HIGH)
     {
         return false;
     }
 
-    if (!touch.touched())
-    {
-        return false;
-    }
+    // --------------------------------------------------------
+    // Lecture XPT2046
+    // --------------------------------------------------------
+
+    digitalWrite(TOUCH_CS, LOW);
 
     TS_Point p = touch.getPoint();
 
-    /*
-     * Valeurs brutes XPT2046.
-     */
+    digitalWrite(TOUCH_CS, HIGH);
+
+    // --------------------------------------------------------
+    // Valeurs brutes
+    // --------------------------------------------------------
+
     int32_t rawX = p.x;
     int32_t rawY = p.y;
+    int32_t rawZ = p.z;
 
-    /*
-     * Protection contre les valeurs manifestement invalides.
-     */
-    if (rawX < 0 || rawX > 4095 ||
-        rawY < 0 || rawY > 4095)
+    Serial.print("[TOUCH RAW] X=");
+    Serial.print(rawX);
+
+    Serial.print(" Y=");
+    Serial.print(rawY);
+
+    Serial.print(" Z=");
+    Serial.println(rawZ);
+
+    // --------------------------------------------------------
+    // Vérification
+    // --------------------------------------------------------
+
+    if (rawX <= 0 ||
+        rawX >= 4095 ||
+        rawY <= 0 ||
+        rawY >= 4095)
     {
+        Serial.println("[TOUCH] RAW invalide");
+
         return false;
     }
 
-    /*
-     * Conversion brute -> écran.
-     *
-     * Rotation 2.
-     *
-     * On utilise map() plutôt qu'une division manuelle
-     * afin de conserver une conversion entière propre.
-     */
+    if (rawZ <= 0 ||
+        rawZ >= 4095)
+    {
+        Serial.println("[TOUCH] Z invalide");
+
+        return false;
+    }
+
+    // --------------------------------------------------------
+    // Conversion
+    // --------------------------------------------------------
+
     int32_t screenX = map(
         rawX,
         TOUCH_MIN_X,
@@ -162,14 +208,26 @@ bool touchReadScreen(int16_t* x, int16_t* y)
         0
     );
 
-    /*
-     * Limitation aux dimensions réelles du TFT.
-     */
-    screenX = constrain(screenX, 0, 239);
-    screenY = constrain(screenY, 0, 319);
+    screenX = constrain(
+        screenX,
+        0,
+        239
+    );
+
+    screenY = constrain(
+        screenY,
+        0,
+        319
+    );
 
     *x = (int16_t)screenX;
     *y = (int16_t)screenY;
+
+    Serial.print("[TOUCH] X=");
+    Serial.print(*x);
+
+    Serial.print(" Y=");
+    Serial.println(*y);
 
     return true;
 }

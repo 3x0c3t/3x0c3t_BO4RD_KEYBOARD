@@ -18,6 +18,7 @@ TFT_eSPI tft = TFT_eSPI();
 void setup()
 {
     Serial.begin(115200);
+
     delay(500);
 
     Serial.println();
@@ -33,7 +34,6 @@ void setup()
 
     tft.init();
 
-    // Rotation 2 : 240 x 320
     tft.setRotation(2);
 
     tft.fillScreen(TFT_BLACK);
@@ -44,15 +44,13 @@ void setup()
     // TOUCH
     // --------------------------------------------------------
 
-    Serial.println("[TOUCH] Init");
-
-    touchInit();
-
-    Serial.println("[TOUCH] OK");
+    touchCalibrationBegin();
 
     // --------------------------------------------------------
     // KEYBOARD
     // --------------------------------------------------------
+
+    Serial.println("[KEYBOARD] Initialisation");
 
     keyboardBegin();
 
@@ -69,35 +67,41 @@ void setup()
 
 void loop()
 {
-    int16_t x = 0;
-    int16_t y = 0;
+    int16_t touchX;
+    int16_t touchY;
 
     // --------------------------------------------------------
     // Lecture tactile
     // --------------------------------------------------------
 
-    if (touchReadScreen(&x, &y))
+    if (touchReadScreen(&touchX, &touchY))
     {
-        Serial.print("[TOUCH] X=");
-        Serial.print(x);
+        Serial.print("[KEYBOARD TOUCH] X=");
+        Serial.print(touchX);
 
         Serial.print(" Y=");
-        Serial.println(y);
+        Serial.println(touchY);
 
-        keyboardUpdate(x, y);
-
-        // ----------------------------------------------------
-        // Validation
-        // ----------------------------------------------------
-
-        if (keyboardWasValidated())
-        {
-            Serial.print("[KEYBOARD] Texte valide : ");
-            Serial.println(keyboardGetText());
-
-            keyboardClearValidated();
-        }
+        keyboardUpdate(
+            touchX,
+            touchY
+        );
     }
 
-    delay(10);
+    // --------------------------------------------------------
+    // Validation
+    // --------------------------------------------------------
+
+    if (keyboardWasValidated())
+    {
+        Serial.print("[KEYBOARD] Texte valide : ");
+
+        Serial.println(
+            keyboardGetText()
+        );
+
+        keyboardClearValidated();
+    }
+
+    delay(20);
 }
