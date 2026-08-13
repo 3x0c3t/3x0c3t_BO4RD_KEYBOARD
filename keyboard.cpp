@@ -1,43 +1,44 @@
 #include "keyboard.h"
 #include "config.h"
 
+#include <Arduino.h>
 #include <TFT_eSPI.h>
 
 extern TFT_eSPI tft;
 
 // ============================================================
-// État clavier
+// État du clavier
 // ============================================================
 
 static KeyboardMode currentMode = KEYBOARD_ALPHA;
 
-static char inputText[KEYBOARD_MAX_TEXT + 1];
-static uint8_t inputLength = 0;
-
-static bool keyboardInitialized = false;
+static char keyboardText[KEYBOARD_MAX_TEXT + 1] = "";
+static uint8_t keyboardTextLength = 0;
 
 // ============================================================
-// Claviers
+// Prototypes internes
 // ============================================================
 
-static const char alphaRows[KEYBOARD_ROWS][KEYBOARD_COLS + 1] =
-{
-    "QWERTYUIOP",
-    "ASDFGHJKL ",
-    "ZXCVBNM  ",
-    "1234567890"
-};
+static int16_t keyWidth();
+static int16_t keyHeight();
 
-static const char numericRows[KEYBOARD_ROWS][KEYBOARD_COLS + 1] =
-{
-    "1234567890",
-    "0987654321",
-    "  -_.,  ",
-    "ABCDEFGHIJ"
-};
+static bool pointInRect(
+    int16_t x,
+    int16_t y,
+    int16_t rx,
+    int16_t ry,
+    int16_t rw,
+    int16_t rh
+);
+
+static void drawInputArea();
+static void drawKeyboardButtons();
+
+static void keyboardAddChar(char c);
+static void keyboardProcessKey(int row, int col);
 
 // ============================================================
-// Utilitaires
+// Dimensions des touches
 // ============================================================
 
 static int16_t keyWidth()
@@ -50,36 +51,179 @@ static int16_t keyHeight()
     return KEYBOARD_H / KEYBOARD_ROWS;
 }
 
-static void addCharacter(char c)
+// ============================================================
+// Test zone rectangulaire
+// ============================================================
+
+static bool pointInRect(
+    int16_t x,
+    int16_t y,
+    int16_t rx,
+    int16_t ry,
+    int16_t rw,
+    int16_t rh
+)
+{
+    return
+        x >= rx &&
+        x < rx + rw &&
+        y >= ry &&
+        y < ry + rh;
+}
+
+// ============================================================
+// Clavier alphabetique
+// ============================================================
+
+static const char alphaRows[KEYBOARD_ROWS][KEYBOARD_COLS + 1] =
+{
+    "QWERTYUIOP",
+    "ASDFGHJKL ",
+    "ZXCVBNM   ",
+    "1234567890"
+};
+
+// ============================================================
+// Clavier numerique
+// ============================================================
+
+static const char numericRows[KEYBOARD_ROWS][KEYBOARD_COLS + 1] =
+{
+    "1234567890",
+    "0987654321",
+    "1234567890",
+    "0987654321"
+};
+
+// ============================================================
+// Initialisation
+// ============================================================
+
+void keyboardInit()
+{
+    Serial.println("[KEYBOARD] Init");
+
+    keyboardText[0] = '\0';
+    keyboardTextLength = 0;
+
+    currentMode = KEYBOARD_ALPHA;
+
+    keyboardDraw();
+
+    Serial.println("[KEYBOARD] Init OK");
+}
+
+void keyboardBegin()
+{
+    keyboardInit();
+}
+
+// ============================================================
+// Gestion texte
+// ============================================================
+
+void keyboardClear()
+{
+    keyboardTextLength = 0;
+    keyboardText[0] = '\0';
+
+    drawInputArea();
+}
+
+const char* keyboardGetText()
+{
+    return keyboardText;
+}
+
+void keyboardSetText(const char* text)
+{
+    if (text == nullptr)
+    {
+        keyboardClear();
+        return;
+    }
+
+    strncpy(
+        keyboardText,
+        text,
+        KEYBOARD_MAX_TEXT
+    );
+
+    keyboardText[KEYBOARD_MAX_TEXT] = '\0';
+
+    keyboardTextLength = strlen(keyboardText);
+
+    drawInputArea();
+}
+
+bool keyboardHasText()
+{
+    return keyboardTextLength > 0;
+}
+
+// ============================================================
+// Ajout caractère
+// ============================================================
+
+static void keyboardAddChar(char c)
 {
     if (c == ' ')
         return;
 
-    if (inputLength >= KEYBOARD_MAX_TEXT)
+    if (keyboardTextLength >= KEYBOARD_MAX_TEXT)
         return;
 
-    inputText[inputLength] = c;
-    inputLength++;
+    keyboardText[keyboardTextLength] = c;
+    keyboardTextLength++;
 
-    inputText[inputLength] = '\0';
+    keyboardText[keyboardTextLength] = '\0';
 
     Serial.print("[KEYBOARD] TEXTE = \"");
-    Serial.print(inputText);
+    Serial.print(keyboardText);
     Serial.println("\"");
+
+    drawInputArea();
 }
 
-static void drawCenteredText(
-    const char* text,
-    int16_t x,
-    int16_t y,
-    uint8_t font,
-    uint16_t color
-)
+// ============================================================
+// DEL
+// ============================================================
+
+void keyboardDelete()
 {
-    tft.setTextColor(color, COLOR_BLACK);
-    tft.setTextDatum(MC_DATUM);
-    tft.drawString(text, x, y, font);
-    tft.setTextDatum(TL_DATUM);
+    Serial.println("[KEYBOARD] DEL");
+
+    if (keyboardTextLength > 0)
+    {
+        keyboardTextLength--;
+
+        keyboardText[keyboardTextLength] = '\0';
+    }
+
+    Serial.print("[KEYBOARD] TEXTE = \"");
+    Serial.print(keyboardText);
+    Serial.println("\"");
+
+    drawInputArea();
+}
+
+// ============================================================
+// OK
+// ============================================================
+
+void keyboardValidate()
+{
+    Serial.print("[KEYBOARD] Validation : ");
+    Serial.println(keyboardText);
+
+    if (keyboardTextLength == 0)
+    {
+        Serial.println("[KEYBOARD] Texte vide");
+        return;
+    }
+
+    Serial.print("[KEYBOARD] Texte valide : ");
+    Serial.println(keyboardText);
 }
 
 // ============================================================
@@ -104,25 +248,31 @@ static void drawInputArea()
         COLOR_WHITE
     );
 
-    tft.setTextColor(COLOR_WHITE, COLOR_BLACK);
-    tft.setTextDatum(ML_DATUM);
+    tft.setTextColor(
+        COLOR_WHITE,
+        COLOR_BLACK
+    );
+
+    tft.setTextDatum(MC_DATUM);
 
     tft.drawString(
-        inputText,
-        INPUT_X + 5,
+        keyboardText,
+        INPUT_X + INPUT_W / 2,
         INPUT_Y + INPUT_H / 2,
         2
     );
-
-    tft.setTextDatum(TL_DATUM);
 }
 
 // ============================================================
-// Bouton DEL
+// Bouton DEL et OK
 // ============================================================
 
-static void drawDeleteButton()
+static void drawKeyboardButtons()
 {
+    // --------------------------------------------------------
+    // DEL
+    // --------------------------------------------------------
+
     tft.fillRect(
         BTN_DEL_X,
         BTN_DEL_Y,
@@ -139,21 +289,24 @@ static void drawDeleteButton()
         COLOR_WHITE
     );
 
-    drawCenteredText(
+    tft.setTextColor(
+        COLOR_WHITE,
+        COLOR_RED
+    );
+
+    tft.setTextDatum(MC_DATUM);
+
+    tft.drawString(
         "DEL",
         BTN_DEL_X + BTN_DEL_W / 2,
         BTN_DEL_Y + BTN_DEL_H / 2,
-        2,
-        COLOR_WHITE
+        2
     );
-}
 
-// ============================================================
-// Bouton OK
-// ============================================================
+    // --------------------------------------------------------
+    // OK
+    // --------------------------------------------------------
 
-static void drawOkButton()
-{
     tft.fillRect(
         BTN_OK_X,
         BTN_OK_Y,
@@ -170,28 +323,32 @@ static void drawOkButton()
         COLOR_WHITE
     );
 
-    drawCenteredText(
+    tft.setTextColor(
+        COLOR_BLACK,
+        COLOR_GREEN
+    );
+
+    tft.drawString(
         "OK",
         BTN_OK_X + BTN_OK_W / 2,
         BTN_OK_Y + BTN_OK_H / 2,
-        2,
-        COLOR_BLACK
+        2
     );
 }
 
 // ============================================================
-// Clavier
+// Dessin clavier
 // ============================================================
 
 void keyboardDraw()
 {
-    tft.fillRect(
-        KEYBOARD_X,
-        KEYBOARD_Y,
-        KEYBOARD_W,
-        KEYBOARD_H,
-        COLOR_BLACK
-    );
+    Serial.println("[KEYBOARD] Dessin clavier");
+
+    tft.fillScreen(COLOR_BLACK);
+
+    drawInputArea();
+
+    drawKeyboardButtons();
 
     const char (*rows)[KEYBOARD_COLS + 1];
 
@@ -207,76 +364,97 @@ void keyboardDraw()
     {
         for (int col = 0; col < KEYBOARD_COLS; col++)
         {
-            int16_t x = KEYBOARD_X + col * kw;
-            int16_t y = KEYBOARD_Y + row * kh;
+            const int16_t x =
+                KEYBOARD_X + col * kw;
+
+            const int16_t y =
+                KEYBOARD_Y + row * kh;
+
+            tft.fillRect(
+                x,
+                y,
+                kw,
+                kh,
+                COLOR_DARK_GREY
+            );
 
             tft.drawRect(
                 x,
                 y,
                 kw,
                 kh,
-                COLOR_GREY
+                COLOR_WHITE
             );
 
             char key = rows[row][col];
 
-            if (key != ' ')
-            {
-                char text[2];
-                text[0] = key;
-                text[1] = '\0';
+            if (key == ' ')
+                continue;
 
-                drawCenteredText(
-                    text,
-                    x + kw / 2,
-                    y + kh / 2,
-                    2,
-                    COLOR_WHITE
-                );
-            }
+            char text[2];
+
+            text[0] = key;
+            text[1] = '\0';
+
+            tft.setTextColor(
+                COLOR_WHITE,
+                COLOR_DARK_GREY
+            );
+
+            tft.setTextDatum(MC_DATUM);
+
+            tft.drawString(
+                text,
+                x + kw / 2,
+                y + kh / 2,
+                2
+            );
         }
     }
-
-    drawInputArea();
-    drawDeleteButton();
-    drawOkButton();
 }
 
 // ============================================================
-// Initialisation
+// Traitement touche
 // ============================================================
 
-void keyboardInit()
+static void keyboardProcessKey(
+    int row,
+    int col
+)
 {
-    if (keyboardInitialized)
-    {
-        Serial.println("[KEYBOARD] Init deja effectue");
+    if (row < 0 || row >= KEYBOARD_ROWS)
         return;
-    }
 
-    Serial.println("[KEYBOARD] Init");
+    if (col < 0 || col >= KEYBOARD_COLS)
+        return;
 
-    inputLength = 0;
-    inputText[0] = '\0';
+    const char (*rows)[KEYBOARD_COLS + 1];
 
-    currentMode = KEYBOARD_ALPHA;
+    if (currentMode == KEYBOARD_ALPHA)
+        rows = alphaRows;
+    else
+        rows = numericRows;
 
-    keyboardInitialized = true;
+    char key = rows[row][col];
 
-    keyboardDraw();
+    if (key == ' ')
+        return;
 
-    Serial.println("[KEYBOARD] OK");
+    Serial.print("[KEYBOARD] TOUCHE = ");
+    Serial.println(key);
+
+    keyboardAddChar(key);
 }
 
 // ============================================================
-// Mise à jour tactile
+// Gestion tactile
 // ============================================================
 
-void keyboardUpdate(int16_t x, int16_t y)
+void keyboardUpdate(
+    int16_t x,
+    int16_t y
+)
 {
-    if (!keyboardInitialized)
-        return;
-
     Serial.print("[KEYBOARD] Analyse X=");
     Serial.print(x);
     Serial.print(" Y=");
@@ -287,16 +465,21 @@ void keyboardUpdate(int16_t x, int16_t y)
     // --------------------------------------------------------
 
     if (
-        x >= BTN_DEL_X &&
-        x < BTN_DEL_X + BTN_DEL_W &&
-        y >= BTN_DEL_Y &&
-        y < BTN_DEL_Y + BTN_DEL_H
+        pointInRect(
+            x,
+            y,
+            BTN_DEL_X,
+            BTN_DEL_Y,
+            BTN_DEL_W,
+            BTN_DEL_H
+        )
     )
     {
         Serial.println("[KEYBOARD] ZONE = DEL");
 
         keyboardDelete();
 
+        delay(120);
         return;
     }
 
@@ -305,16 +488,21 @@ void keyboardUpdate(int16_t x, int16_t y)
     // --------------------------------------------------------
 
     if (
-        x >= BTN_OK_X &&
-        x < BTN_OK_X + BTN_OK_W &&
-        y >= BTN_OK_Y &&
-        y < BTN_OK_Y + BTN_OK_H
+        pointInRect(
+            x,
+            y,
+            BTN_OK_X,
+            BTN_OK_Y,
+            BTN_OK_W,
+            BTN_OK_H
+        )
     )
     {
         Serial.println("[KEYBOARD] ZONE = OK");
 
         keyboardValidate();
 
+        delay(120);
         return;
     }
 
@@ -332,97 +520,41 @@ void keyboardUpdate(int16_t x, int16_t y)
         return;
     }
 
-    int col =
-        (x - KEYBOARD_X) /
-        keyWidth();
+    const int16_t kw = keyWidth();
+    const int16_t kh = keyHeight();
 
     int row =
-        (y - KEYBOARD_Y) /
-        keyHeight();
+        (y - KEYBOARD_Y) / kh;
 
-    if (row < 0 || row >= KEYBOARD_ROWS)
-        return;
+    int col =
+        (x - KEYBOARD_X) / kw;
 
-    if (col < 0 || col >= KEYBOARD_COLS)
-        return;
+    if (row >= KEYBOARD_ROWS)
+        row = KEYBOARD_ROWS - 1;
+
+    if (col >= KEYBOARD_COLS)
+        col = KEYBOARD_COLS - 1;
 
     Serial.print("[KEYBOARD] ROW=");
     Serial.print(row);
     Serial.print(" COL=");
     Serial.println(col);
 
-    const char (*rows)[KEYBOARD_COLS + 1];
+    keyboardProcessKey(
+        row,
+        col
+    );
 
-    if (currentMode == KEYBOARD_ALPHA)
-        rows = alphaRows;
-    else
-        rows = numericRows;
-
-    char key = rows[row][col];
-
-    if (key == ' ')
-        return;
-
-    Serial.print("[KEYBOARD] TOUCHE = ");
-    Serial.println(key);
-
-    addCharacter(key);
-
-    keyboardDraw();
-}
-
-// ============================================================
-// Effacement
-// ============================================================
-
-void keyboardDelete()
-{
-    if (inputLength == 0)
-        return;
-
-    inputLength--;
-
-    inputText[inputLength] = '\0';
-
-    Serial.print("[KEYBOARD] DEL -> TEXTE = \"");
-    Serial.print(inputText);
-    Serial.println("\"");
-
-    keyboardDraw();
-}
-
-// ============================================================
-// Validation
-// ============================================================
-
-void keyboardValidate()
-{
-    Serial.print("[KEYBOARD] Validation : ");
-    Serial.println(inputText);
-
-    Serial.print("[KEYBOARD] Texte valide : ");
-    Serial.println(inputText);
-}
-
-// ============================================================
-// Effacer complètement
-// ============================================================
-
-void keyboardClear()
-{
-    inputLength = 0;
-    inputText[0] = '\0';
-
-    keyboardDraw();
-
-    Serial.println("[KEYBOARD] Texte efface");
+    delay(120);
 }
 
 // ============================================================
 // Mode
 // ============================================================
 
-void keyboardSetMode(KeyboardMode mode)
+void keyboardSetMode(
+    KeyboardMode mode
+)
 {
     currentMode = mode;
 
@@ -432,13 +564,4 @@ void keyboardSetMode(KeyboardMode mode)
 KeyboardMode keyboardGetMode()
 {
     return currentMode;
-}
-
-// ============================================================
-// Texte
-// ============================================================
-
-const char* keyboardGetText()
-{
-    return inputText;
 }
