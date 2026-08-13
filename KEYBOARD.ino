@@ -74,9 +74,7 @@ void loop()
     // Lecture tactile
     // --------------------------------------------------------
 
-    if (touchReadScreen(
-            &touchX,
-            &touchY))
+    if (touchReadScreen(&touchX, &touchY))
     {
         Serial.print("[KEYBOARD TOUCH] X=");
         Serial.print(touchX);
