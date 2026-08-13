@@ -1,70 +1,58 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h>
-#include <SPI.h>
 
 #include "config.h"
 #include "keyboard.h"
 #include "touch_calibration.h"
 
+// ============================================================
+// TFT
+// ============================================================
+
 TFT_eSPI tft = TFT_eSPI();
+
+// ============================================================
+// SETUP
+// ============================================================
 
 void setup()
 {
     Serial.begin(115200);
-    delay(1000);
+    delay(500);
 
     Serial.println();
     Serial.println("==============================");
     Serial.println("  3x0c3t KEYBOARD v1.0");
     Serial.println("==============================");
 
+    // --------------------------------------------------------
+    // TFT
+    // --------------------------------------------------------
+
     Serial.println("[KEYBOARD] TFT Init");
 
     tft.init();
 
-    Serial.println("[KEYBOARD] TFT OK");
-
+    // Rotation 2 : 240 x 320
     tft.setRotation(2);
 
-    Serial.println("[KEYBOARD] Rotation OK");
-
     tft.fillScreen(TFT_BLACK);
 
-    Serial.println("[KEYBOARD] Ecran noir OK");
+    Serial.println("[KEYBOARD] TFT OK");
 
-    delay(500);
-
-    Serial.println("[KEYBOARD] Test ROUGE");
-    tft.fillScreen(TFT_RED);
-    delay(500);
-
-    Serial.println("[KEYBOARD] Test VERT");
-    tft.fillScreen(TFT_GREEN);
-    delay(500);
-
-    Serial.println("[KEYBOARD] Test BLEU");
-    tft.fillScreen(TFT_BLUE);
-    delay(500);
-
-    Serial.println("[KEYBOARD] Test NOIR");
-    tft.fillScreen(TFT_BLACK);
-
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(2);
-    tft.setCursor(20, 20);
-    tft.println("3x0c3t");
-    tft.println();
-    tft.println("KEYBOARD");
-    tft.println();
-    tft.println("TFT OK");
+    // --------------------------------------------------------
+    // TOUCH
+    // --------------------------------------------------------
 
     Serial.println("[TOUCH] Init");
 
-    touchCalibrationBegin();
+    touchInit();
 
     Serial.println("[TOUCH] OK");
 
-    Serial.println("[KEYBOARD] Initialisation");
+    // --------------------------------------------------------
+    // KEYBOARD
+    // --------------------------------------------------------
 
     keyboardBegin();
 
@@ -75,22 +63,40 @@ void setup()
     Serial.println("==============================");
 }
 
+// ============================================================
+// LOOP
+// ============================================================
+
 void loop()
 {
-    int16_t x;
-    int16_t y;
+    int16_t x = 0;
+    int16_t y = 0;
+
+    // --------------------------------------------------------
+    // Lecture tactile
+    // --------------------------------------------------------
 
     if (touchReadScreen(&x, &y))
     {
+        Serial.print("[TOUCH] X=");
+        Serial.print(x);
+
+        Serial.print(" Y=");
+        Serial.println(y);
+
         keyboardUpdate(x, y);
-    }
 
-    if (keyboardWasValidated())
-    {
-        Serial.print("[KEYBOARD] Texte valide : ");
-        Serial.println(keyboardGetText());
+        // ----------------------------------------------------
+        // Validation
+        // ----------------------------------------------------
 
-        keyboardClearValidated();
+        if (keyboardWasValidated())
+        {
+            Serial.print("[KEYBOARD] Texte valide : ");
+            Serial.println(keyboardGetText());
+
+            keyboardClearValidated();
+        }
     }
 
     delay(10);
