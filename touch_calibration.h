@@ -3,17 +3,11 @@
 
 #include <Arduino.h>
 
-// Initialisation du tactile
+// Initialise le contrôleur tactile
 void touchCalibrationBegin();
 
-// Lecture tactile et conversion en coordonnées écran
-bool touchReadScreen(int16_t &screenX, int16_t &screenY);
-
-// Lecture brute pour diagnostic
-bool touchReadRaw(
-    int16_t &rawX,
-    int16_t &rawY,
-    int16_t &rawZ
-);
+// Lit le tactile et retourne les coordonnées écran
+// Retourne true si un appui valide est détecté
+bool touchReadScreen(int16_t* x, int16_t* y);
 
 #endif

@@ -1,27 +1,30 @@
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#ifndef KEYBOARD_MODULE_H
+#define KEYBOARD_MODULE_H
 
 #include <Arduino.h>
 
-// Initialise le clavier
+enum KeyboardMode
+{
+    KEYBOARD_ALPHA = 0,
+    KEYBOARD_NUMERIC = 1
+};
+
 void keyboardBegin();
 
-// Dessine le clavier
 void keyboardDraw();
 
-// Traite un appui tactile
 void keyboardUpdate(int16_t x, int16_t y);
 
-// Retourne le texte saisi
 const char* keyboardGetText();
 
-// Efface le texte
 void keyboardClearText();
 
-// Indique si la touche VALIDER a été pressée
 bool keyboardWasValidated();
 
-// Efface l'état VALIDÉ
 void keyboardClearValidated();
+
+void keyboardSetMode(KeyboardMode mode);
+
+KeyboardMode keyboardGetMode();
 
 #endif
