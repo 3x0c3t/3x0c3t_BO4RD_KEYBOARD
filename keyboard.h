@@ -5,33 +5,18 @@
 
 enum KeyboardMode
 {
-    KEYBOARD_ALPHA,
-    KEYBOARD_NUMERIC
+    KEYBOARD_ALPHA = 0,
+    KEYBOARD_NUMERIC = 1
 };
 
-
-void keyboardBegin();
-
 void keyboardInit();
-
 void keyboardDraw();
+void keyboardUpdate(int16_t x, int16_t y);
 
-void keyboardUpdate(
-    int16_t x,
-    int16_t y
-);
-
-void keyboardDelete();
-
-void keyboardValidate();
-
-void keyboardSetMode(
-    KeyboardMode mode
-);
-
+void keyboardSetMode(KeyboardMode mode);
 KeyboardMode keyboardGetMode();
 
 const char* keyboardGetText();
-
+void keyboardClear();
 
 #endif

@@ -1,125 +1,82 @@
 #ifndef KEYBOARD_CONFIG_H
 #define KEYBOARD_CONFIG_H
 
+#include <Arduino.h>
+
+#define SCREEN_WIDTH  240
+#define SCREEN_HEIGHT 320
+
 // ============================================================
-// 3x0c3t BO4RD KEYBOARD v1.0
-// Configuration
+// CLAVIER
 // ============================================================
 
+#define KEYBOARD_X 0
+#define KEYBOARD_Y 125
 
-// ------------------------------------------------------------
-// Ecran
-// ------------------------------------------------------------
+#define KEYBOARD_W 240
+#define KEYBOARD_H 182
 
-#define SCREEN_WIDTH   240
-#define SCREEN_HEIGHT  320
+#define KEYBOARD_ROWS 4
+#define KEYBOARD_COLS 10
 
-#define SCREEN_ROTATION 2
+#define KEYBOARD_MAX_LENGTH 32
 
+// ============================================================
+// ZONE TEXTE
+// ============================================================
 
-// ------------------------------------------------------------
-// Calibration tactile
-//
-// 1 = calibration disponible au demarrage
-// 0 = calibration desactivee
-// ------------------------------------------------------------
+#define INPUT_X 5
+#define INPUT_Y 5
+#define INPUT_W 230
+#define INPUT_H 35
 
-#define TOUCH_CALIBRATION 1
+// ============================================================
+// BOUTON DEL
+// ============================================================
 
+#define BTN_DEL_X 5
+#define BTN_DEL_Y 90
+#define BTN_DEL_W 70
+#define BTN_DEL_H 30
 
-// ------------------------------------------------------------
-// Ancienne calibration
-//
-// Valeurs actuellement utilisees
-// ------------------------------------------------------------
+// ============================================================
+// BOUTON OK
+// ============================================================
 
+#define BTN_OK_X 165
+#define BTN_OK_Y 90
+#define BTN_OK_W 70
+#define BTN_OK_H 30
+
+// ============================================================
+// CALIBRATION
+// ============================================================
+
+// Valeurs de calibration précédentes
 #define TOUCH_PREVIOUS_CAL_0 294
 #define TOUCH_PREVIOUS_CAL_1 3385
 #define TOUCH_PREVIOUS_CAL_2 442
 #define TOUCH_PREVIOUS_CAL_3 289
 #define TOUCH_PREVIOUS_CAL_4 3387
 
+// ============================================================
+// CHOIX CALIBRATION
+// ============================================================
 
-// ------------------------------------------------------------
-// Ecran de choix calibration
-// ------------------------------------------------------------
+#define CALIBRATION_NEW_X 10
+#define CALIBRATION_NEW_Y 90
+#define CALIBRATION_NEW_W 220
+#define CALIBRATION_NEW_H 55
 
-#define CALIBRATION_NEW_X       15
-#define CALIBRATION_NEW_Y       110
-#define CALIBRATION_NEW_W       210
-#define CALIBRATION_NEW_H        70
+#define CALIBRATION_REUSE_X 10
+#define CALIBRATION_REUSE_Y 165
+#define CALIBRATION_REUSE_W 220
+#define CALIBRATION_REUSE_H 55
 
-#define CALIBRATION_REUSE_X     15
-#define CALIBRATION_REUSE_Y     200
-#define CALIBRATION_REUSE_W     210
-#define CALIBRATION_REUSE_H      70
+// ============================================================
+// COULEURS
+// ============================================================
 
-
-// ------------------------------------------------------------
-// Clavier
-// ------------------------------------------------------------
-
-#define KEYBOARD_X       0
-#define KEYBOARD_Y       138
-#define KEYBOARD_W       240
-#define KEYBOARD_H       182
-
-#define KEYBOARD_ROWS    4
-#define KEYBOARD_COLS    10
-
-
-// ------------------------------------------------------------
-// Champ de saisie
-// ------------------------------------------------------------
-
-#define INPUT_X          10
-#define INPUT_Y          10
-#define INPUT_W          220
-#define INPUT_H           45
-
-
-// ------------------------------------------------------------
-// Bouton DEL
-// ------------------------------------------------------------
-
-#define BTN_DEL_X        10
-#define BTN_DEL_Y        65
-#define BTN_DEL_W        100
-#define BTN_DEL_H        45
-
-
-// ------------------------------------------------------------
-// Bouton OK
-// ------------------------------------------------------------
-
-#define BTN_OK_X         130
-#define BTN_OK_Y          65
-#define BTN_OK_W         100
-#define BTN_OK_H          45
-
-
-// ------------------------------------------------------------
-// Couleurs
-// ------------------------------------------------------------
-
-#define COLOR_BLACK       0x0000
-#define COLOR_WHITE       0xFFFF
-#define COLOR_GREY        0x7BEF
-#define COLOR_DARK_GREY   0x39E7
-#define COLOR_BLUE        0x001F
-#define COLOR_CYAN        0x07FF
-#define COLOR_GREEN       0x07E0
-#define COLOR_RED        0xF800
-#define COLOR_YELLOW      0xFFE0
-#define COLOR_ORANGE      0xFD20
-#define COLOR_MAGENTA     0xF81F
-
-
-// ------------------------------------------------------------
-// Texte
-// ------------------------------------------------------------
-
-#define KEYBOARD_MAX_TEXT 64
-
+#define COLOR_MAGENTA TFT_MAGENTA
 
 #endif
