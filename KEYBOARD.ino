@@ -22,40 +22,23 @@ void setup()
     delay(500);
 
     Serial.println();
-
-    Serial.println(
-        "=============================="
-    );
-
-    Serial.println(
-        "  3x0c3t KEYBOARD v1.0"
-    );
-
-    Serial.println(
-        "=============================="
-    );
+    Serial.println("==============================");
+    Serial.println("  3x0c3t KEYBOARD v1.0");
+    Serial.println("==============================");
 
     // --------------------------------------------------------
     // TFT
     // --------------------------------------------------------
 
-    Serial.println(
-        "[KEYBOARD] TFT Init"
-    );
+    Serial.println("[KEYBOARD] TFT Init");
 
     tft.init();
 
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
+    tft.setRotation(SCREEN_ROTATION);
 
-    tft.fillScreen(
-        TFT_BLACK
-    );
+    tft.fillScreen(TFT_BLACK);
 
-    Serial.println(
-        "[KEYBOARD] TFT OK"
-    );
+    Serial.println("[KEYBOARD] TFT OK");
 
     // --------------------------------------------------------
     // TOUCH
@@ -67,27 +50,15 @@ void setup()
     // KEYBOARD
     // --------------------------------------------------------
 
-    Serial.println(
-        "[KEYBOARD] Initialisation"
-    );
+    Serial.println("[KEYBOARD] Initialisation");
 
     keyboardBegin();
 
-    Serial.println(
-        "[KEYBOARD] OK"
-    );
+    Serial.println("[KEYBOARD] OK");
 
-    Serial.println(
-        "=============================="
-    );
-
-    Serial.println(
-        "  KEYBOARD READY"
-    );
-
-    Serial.println(
-        "=============================="
-    );
+    Serial.println("==============================");
+    Serial.println("  KEYBOARD READY");
+    Serial.println("==============================");
 }
 
 // ============================================================
@@ -100,31 +71,18 @@ void loop()
     int16_t touchY;
 
     // --------------------------------------------------------
-    // TOUCH TFT_eSPI
+    // Lecture tactile
     // --------------------------------------------------------
 
-    if (
-        touchReadScreen(
+    if (touchReadScreen(
             &touchX,
-            &touchY
-        )
-    )
+            &touchY))
     {
-        Serial.print(
-            "[TOUCH] X="
-        );
+        Serial.print("[KEYBOARD TOUCH] X=");
+        Serial.print(touchX);
 
-        Serial.print(
-            touchX
-        );
-
-        Serial.print(
-            " Y="
-        );
-
-        Serial.println(
-            touchY
-        );
+        Serial.print(" Y=");
+        Serial.println(touchY);
 
         keyboardUpdate(
             touchX,
@@ -133,16 +91,12 @@ void loop()
     }
 
     // --------------------------------------------------------
-    // VALIDATION
+    // Validation
     // --------------------------------------------------------
 
-    if (
-        keyboardWasValidated()
-    )
+    if (keyboardWasValidated())
     {
-        Serial.print(
-            "[KEYBOARD] Texte valide : "
-        );
+        Serial.print("[KEYBOARD] Texte valide : ");
 
         Serial.println(
             keyboardGetText()
@@ -151,5 +105,5 @@ void loop()
         keyboardClearValidated();
     }
 
-    delay(10);
+    delay(20);
 }
