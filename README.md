@@ -1,107 +1,83 @@
-# 3x0c3t BO4RD KEYPAD
+# 3x0c3t BO4RD KEYBOARD v1.0
 
-Keypad tactile pour ESP8266 avec écran TFT SPI 2.8" 240x320 basé sur ILI9341 et contrôleur tactile XPT2046.
+Clavier tactile pour TFT 240x320 avec ESP8266,
+TFT_eSPI et XPT2046.
 
-Le projet utilise la bibliothèque TFT_eSPI et est structuré en plusieurs fichiers afin de séparer la configuration, l'affichage, le clavier et la calibration tactile.
+## Materiel
 
-## Version
+ESP8266 NodeMCU
 
-v1.0
+TFT ILI9341 240x320
 
-## État du projet
+Touchscreen XPT2046
 
-Projet fonctionnel.
-
-- ESP8266 : OK
-- TFT ILI9341 : OK
-- Résolution : 240x320
-- Orientation : portrait
-- Rotation TFT_eSPI : 2
-- Touch XPT2046 : OK
-- Calibration tactile : OK
-- Sauvegarde calibration : OK
-- SPIFFS : OK
-- Keypad : OK
-- Détection des boutons : OK
-- Affichage du buffer : OK
-- Entrée numérique : OK
-- Suppression : OK
-- Envoi série : OK
-- Logs de diagnostic : OK
-
----
-
-# 1. Présentation
-
-Le projet `3x0c3t_BO4RD_KEYPAD` est un clavier numérique tactile destiné à être utilisé avec une carte ESP8266 équipée d'un écran TFT SPI 2.8".
-
-L'interface permet de saisir une valeur à l'aide de 15 boutons tactiles.
-
-Les boutons disponibles sont :
-
-- New
-- Del
-- Send
-- 1
-- 2
-- 3
-- 4
-- 5
-- 6
-- 7
-- 8
-- 9
-- .
-- 0
-- #
-
-La valeur saisie est affichée dans une zone supérieure de l'écran.
-
-Le bouton `Send` transmet la valeur au moniteur série.
-
----
-
-# 2. Matériel
-
-## Microcontrôleur
-
-ESP8266.
-
-Le projet a été développé et testé avec l'environnement Arduino.
-
-## Écran
-
-TFT SPI 2.8".
-
-Contrôleur :
-
-ILI9341
-
-Résolution :
-
-240 x 320 pixels
-
-Orientation utilisée :
-
-Portrait
+## Rotation
 
 Rotation TFT_eSPI :
 
 2
 
-## Contrôleur tactile
+Resolution logique :
 
-XPT2046.
+240 x 320
 
-Le tactile utilise le même bus SPI que le TFT avec une broche CS dédiée.
+## Architecture
 
----
+TFT_eSPI gere :
 
-# 3. Bibliothèques
+- TFT
+- SPI
+- XPT2046
+- lecture tactile
+- calibration
+- conversion des coordonnées
 
-Le projet utilise principalement :
+Le module keyboard reçoit uniquement :
 
-```text
-TFT_eSPI
-SPI
-FS
+X
+Y
+
+## Touch
+
+La lecture tactile utilise :
+
+tft.getTouch()
+
+Aucune lecture SPI XPT2046 manuelle n'est utilisée.
+
+## Clavier
+
+Mode alphabetique :
+
+QWERTYUIOP
+ASDFGHJKL
+ZXCVBNM
+1234567890
+
+Mode numerique :
+
+1234567890
+-+*/=()<>
+.,:;!?%#
+ABCDEFGHIJ
+
+## Commandes
+
+ABC / 123 :
+changement de clavier
+
+< :
+retour arrière
+
+OK :
+validation du texte
+
+## Fichiers
+
+KEYBOARD.ino
+config.h
+keyboard.h
+keyboard.cpp
+touch_calibration.h
+touch_calibration.cpp
+README.md

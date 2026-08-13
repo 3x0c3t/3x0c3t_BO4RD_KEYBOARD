@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 // ============================================================
-// Mode du clavier
+// Mode clavier
 // ============================================================
 
 enum KeyboardMode
@@ -29,13 +29,19 @@ void keyboardDraw();
 // Gestion tactile
 // ============================================================
 
-void keyboardUpdate(int16_t x, int16_t y);
+void keyboardUpdate(
+    int16_t x,
+    int16_t y
+);
 
 // ============================================================
 // Mode
 // ============================================================
 
-void keyboardSetMode(KeyboardMode mode);
+void keyboardSetMode(
+    KeyboardMode mode
+);
+
 KeyboardMode keyboardGetMode();
 
 // ============================================================
@@ -49,6 +55,7 @@ const char* keyboardGetText();
 // ============================================================
 
 bool keyboardWasValidated();
+
 void keyboardClearValidated();
 
 #endif
