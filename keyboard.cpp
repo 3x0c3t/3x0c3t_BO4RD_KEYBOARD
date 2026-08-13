@@ -22,58 +22,45 @@ static uint8_t keyboardTextLength = 0;
 
 static bool validated = false;
 
-// ============================================================
-// ANTI-REBOND
-// ============================================================
-
 static unsigned long lastTouchTime = 0;
 
 static const unsigned long TOUCH_DELAY = 180;
 
 // ============================================================
-// DIMENSIONS ECRAN
-// ============================================================
-
-static const int16_t SCREEN_W = 240;
-static const int16_t SCREEN_H = 320;
-
-// ============================================================
-// ZONE SAISIE
+// DIMENSIONS
 // ============================================================
 
 static const int16_t INPUT_Y = 0;
-static const int16_t INPUT_H = 48;
+static const int16_t INPUT_H = 42;
 
-// ============================================================
-// BOUTONS DROITE
-// ============================================================
+static const int16_t ACTION_WIDTH = 48;
 
-static const int16_t ACTION_X = 168;
-static const int16_t ACTION_W = 72;
+static const int16_t DEL_X =
+    SCREEN_WIDTH - (ACTION_WIDTH * 2);
 
-static const int16_t DELETE_X = 168;
-static const int16_t DELETE_W = 36;
+static const int16_t OK_X =
+    SCREEN_WIDTH - ACTION_WIDTH;
 
-static const int16_t OK_X = 204;
-static const int16_t OK_W = 36;
+static const int16_t TEXT_W =
+    DEL_X;
 
-// ============================================================
-// CLAVIER
-// ============================================================
-
-static const int16_t KEYBOARD_Y = 138;
+static const int16_t KEY_Y =
+    KEYBOARD_Y;
 
 static const int16_t KEY_ROWS = 4;
 static const int16_t KEY_COLS = 10;
 
+static const int16_t KEYBOARD_HEIGHT =
+    SCREEN_HEIGHT - KEY_Y;
+
 static const int16_t KEY_HEIGHT =
-    (SCREEN_H - KEYBOARD_Y) / KEY_ROWS;
+    KEYBOARD_HEIGHT / KEY_ROWS;
 
 static const int16_t KEY_WIDTH =
-    SCREEN_W / KEY_COLS;
+    SCREEN_WIDTH / KEY_COLS;
 
 // ============================================================
-// TOUCHES ALPHABETIQUES
+// CLAVIER ALPHABETIQUE
 // ============================================================
 
 static const char alphaRows[4][11] =
@@ -85,12 +72,7 @@ static const char alphaRows[4][11] =
 };
 
 // ============================================================
-// TOUCHES NUMERIQUES
-// ============================================================
-//
-// Le mode numérique reste disponible via keyboardSetMode()
-// pour conserver la compatibilité du module.
-// L'interface principale n'affiche plus de bouton ABC.
+// CLAVIER NUMERIQUE
 // ============================================================
 
 static const char numericRows[4][11] =
@@ -102,24 +84,28 @@ static const char numericRows[4][11] =
 };
 
 // ============================================================
-// CLEAR TEXTE
+// CLEAR TEXT
 // ============================================================
 
 static void clearText()
 {
     keyboardTextLength = 0;
-
     keyboardText[0] = '\0';
 }
 
 // ============================================================
-// AJOUT CARACTERE
+// ADD CHARACTER
 // ============================================================
 
 static void addCharacter(char c)
 {
-    if (keyboardTextLength >= KEYBOARD_MAX_TEXT - 1)
+    if (
+        keyboardTextLength >=
+        KEYBOARD_MAX_TEXT - 1
+    )
+    {
         return;
+    }
 
     keyboardText[keyboardTextLength] = c;
 
@@ -135,7 +121,9 @@ static void addCharacter(char c)
 static void backspaceCharacter()
 {
     if (keyboardTextLength == 0)
+    {
         return;
+    }
 
     keyboardTextLength--;
 
@@ -163,44 +151,7 @@ static bool touchInside(
 }
 
 // ============================================================
-// DESSIN BOUTON
-// ============================================================
-
-static void drawButton(
-    int16_t x,
-    int16_t y,
-    int16_t w,
-    int16_t h,
-    const char* label
-)
-{
-    tft.drawRect(
-        x,
-        y,
-        w,
-        h,
-        TFT_WHITE
-    );
-
-    tft.setTextColor(
-        TFT_WHITE,
-        TFT_BLACK
-    );
-
-    tft.setTextDatum(MC_DATUM);
-
-    tft.drawString(
-        label,
-        x + (w / 2),
-        y + (h / 2),
-        2
-    );
-
-    tft.setTextDatum(TL_DATUM);
-}
-
-// ============================================================
-// DESSIN TOUCHE CLAVIER
+// DESSIN TOUCHE
 // ============================================================
 
 static void drawKey(
@@ -228,8 +179,8 @@ static void drawKey(
 
     tft.drawString(
         label,
-        x + (w / 2),
-        y + (h / 2),
+        x + w / 2,
+        y + h / 2,
         2
     );
 
@@ -237,61 +188,26 @@ static void drawKey(
 }
 
 // ============================================================
-// DESSIN ZONE DE SAISIE
+// DESSIN BOUTON ACTION
 // ============================================================
 
-static void drawInputArea()
+static void drawActionButton(
+    int16_t x,
+    const char* label
+)
 {
-    // --------------------------------------------------------
-    // Fond
-    // --------------------------------------------------------
-
     tft.fillRect(
-        0,
+        x,
         INPUT_Y,
-        SCREEN_W,
+        ACTION_WIDTH,
         INPUT_H,
         TFT_DARKGREY
     );
 
-    // --------------------------------------------------------
-    // Cadre
-    // --------------------------------------------------------
-
     tft.drawRect(
-        0,
+        x,
         INPUT_Y,
-        SCREEN_W,
-        INPUT_H,
-        TFT_WHITE
-    );
-
-    // --------------------------------------------------------
-    // Texte
-    // --------------------------------------------------------
-
-    tft.setTextColor(
-        TFT_WHITE,
-        TFT_DARKGREY
-    );
-
-    tft.setTextDatum(TL_DATUM);
-
-    tft.drawString(
-        keyboardText,
-        6,
-        10,
-        2
-    );
-
-    // --------------------------------------------------------
-    // DEL
-    // --------------------------------------------------------
-
-    tft.drawRect(
-        DELETE_X,
-        0,
-        DELETE_W,
+        ACTION_WIDTH,
         INPUT_H,
         TFT_WHITE
     );
@@ -304,29 +220,10 @@ static void drawInputArea()
     tft.setTextDatum(MC_DATUM);
 
     tft.drawString(
-        "DEL",
-        DELETE_X + DELETE_W / 2,
-        INPUT_H / 2,
-        1
-    );
-
-    // --------------------------------------------------------
-    // OK
-    // --------------------------------------------------------
-
-    tft.drawRect(
-        OK_X,
-        0,
-        OK_W,
-        INPUT_H,
-        TFT_WHITE
-    );
-
-    tft.drawString(
-        "OK",
-        OK_X + OK_W / 2,
-        INPUT_H / 2,
-        1
+        label,
+        x + ACTION_WIDTH / 2,
+        INPUT_Y + INPUT_H / 2,
+        2
     );
 
     tft.setTextDatum(TL_DATUM);
@@ -339,42 +236,81 @@ static void drawInputArea()
 void keyboardDraw()
 {
     // --------------------------------------------------------
-    // Fond
+    // FOND
     // --------------------------------------------------------
 
     tft.fillScreen(TFT_BLACK);
 
     // --------------------------------------------------------
-    // Zone de saisie
+    // CHAMP DE SAISIE
     // --------------------------------------------------------
 
-    drawInputArea();
-
-    // --------------------------------------------------------
-    // Séparation
-    // --------------------------------------------------------
-
-    tft.drawFastHLine(
+    tft.fillRect(
         0,
-        KEYBOARD_Y - 1,
-        SCREEN_W,
+        INPUT_Y,
+        TEXT_W,
+        INPUT_H,
+        TFT_DARKGREY
+    );
+
+    tft.drawRect(
+        0,
+        INPUT_Y,
+        TEXT_W,
+        INPUT_H,
         TFT_WHITE
     );
 
     // --------------------------------------------------------
-    // Choix du clavier
+    // TEXTE
+    // --------------------------------------------------------
+
+    tft.setTextColor(
+        TFT_WHITE,
+        TFT_DARKGREY
+    );
+
+    tft.setTextDatum(TL_DATUM);
+
+    tft.drawString(
+        keyboardText,
+        6,
+        11,
+        2
+    );
+
+    // --------------------------------------------------------
+    // DEL
+    // --------------------------------------------------------
+
+    drawActionButton(
+        DEL_X,
+        "DEL"
+    );
+
+    // --------------------------------------------------------
+    // OK
+    // --------------------------------------------------------
+
+    drawActionButton(
+        OK_X,
+        "OK"
+    );
+
+    // --------------------------------------------------------
+    // CLAVIER
     // --------------------------------------------------------
 
     const char (*rows)[11];
 
     if (currentMode == KEYBOARD_ALPHA)
+    {
         rows = alphaRows;
+    }
     else
+    {
         rows = numericRows;
-
-    // --------------------------------------------------------
-    // Touches
-    // --------------------------------------------------------
+    }
 
     for (int row = 0; row < KEY_ROWS; row++)
     {
@@ -384,8 +320,7 @@ void keyboardDraw()
                 col * KEY_WIDTH;
 
             int16_t y =
-                KEYBOARD_Y +
-                row * KEY_HEIGHT;
+                KEY_Y + row * KEY_HEIGHT;
 
             char label[2];
 
@@ -412,9 +347,7 @@ void keyboardDraw()
 
 void keyboardBegin()
 {
-    Serial.println(
-        "[KEYBOARD] Initialisation"
-    );
+    Serial.println("[KEYBOARD] Initialisation");
 
     clearText();
 
@@ -436,7 +369,7 @@ void keyboardBegin()
 }
 
 // ============================================================
-// GESTION TACTILE
+// MISE A JOUR
 // ============================================================
 
 void keyboardUpdate(
@@ -444,6 +377,20 @@ void keyboardUpdate(
     int16_t y
 )
 {
+    // --------------------------------------------------------
+    // VALIDATION COORDONNEES
+    // --------------------------------------------------------
+
+    if (
+        x < 0 ||
+        x >= SCREEN_WIDTH ||
+        y < 0 ||
+        y >= SCREEN_HEIGHT
+    )
+    {
+        return;
+    }
+
     // --------------------------------------------------------
     // DEBUG
     // --------------------------------------------------------
@@ -461,25 +408,7 @@ void keyboardUpdate(
     Serial.println(y);
 
     // --------------------------------------------------------
-    // Coordonnées invalides
-    // --------------------------------------------------------
-
-    if (
-        x < 0 ||
-        x >= SCREEN_W ||
-        y < 0 ||
-        y >= SCREEN_H
-    )
-    {
-        Serial.println(
-            "[KEYBOARD] Coordonnees invalides"
-        );
-
-        return;
-    }
-
-    // --------------------------------------------------------
-    // Anti-rebond
+    // ANTI-REBOND
     // --------------------------------------------------------
 
     unsigned long now = millis();
@@ -495,100 +424,106 @@ void keyboardUpdate(
     lastTouchTime = now;
 
     // ========================================================
-    // ZONE SAISIE
+    // DEL
     // ========================================================
 
     if (
-        y >= INPUT_Y &&
-        y < INPUT_H
+        touchInside(
+            x,
+            y,
+            DEL_X,
+            INPUT_Y,
+            ACTION_WIDTH,
+            INPUT_H
+        )
     )
     {
-        // ----------------------------------------------------
-        // BOUTON DEL
-        // ----------------------------------------------------
+        Serial.println(
+            "[KEYBOARD] ZONE = DEL"
+        );
 
-        if (
-            touchInside(
-                x,
-                y,
-                DELETE_X,
-                0,
-                DELETE_W,
-                INPUT_H
-            )
-        )
-        {
-            Serial.println(
-                "[KEYBOARD] DEL"
-            );
+        Serial.print(
+            "[KEYBOARD] AVANT DEL = \""
+        );
 
-            backspaceCharacter();
+        Serial.print(
+            keyboardText
+        );
 
-            Serial.print(
-                "[KEYBOARD] TEXTE = \""
-            );
+        Serial.println(
+            "\""
+        );
 
-            Serial.print(
-                keyboardText
-            );
+        backspaceCharacter();
 
-            Serial.println(
-                "\""
-            );
+        Serial.print(
+            "[KEYBOARD] APRES DEL = \""
+        );
 
-            keyboardDraw();
+        Serial.print(
+            keyboardText
+        );
 
-            return;
-        }
+        Serial.println(
+            "\""
+        );
 
-        // ----------------------------------------------------
-        // BOUTON OK
-        // ----------------------------------------------------
-
-        if (
-            touchInside(
-                x,
-                y,
-                OK_X,
-                0,
-                OK_W,
-                INPUT_H
-            )
-        )
-        {
-            if (
-                keyboardTextLength == 0
-            )
-            {
-                Serial.println(
-                    "[KEYBOARD] OK ignore : texte vide"
-                );
-
-                return;
-            }
-
-            validated = true;
-
-            Serial.print(
-                "[KEYBOARD] Validation : "
-            );
-
-            Serial.println(
-                keyboardText
-            );
-
-            return;
-        }
+        keyboardDraw();
 
         return;
     }
 
     // ========================================================
-    // ZONE VIDE ENTRE SAISIE ET CLAVIER
+    // OK
     // ========================================================
 
-    if (y < KEYBOARD_Y)
+    if (
+        touchInside(
+            x,
+            y,
+            OK_X,
+            INPUT_Y,
+            ACTION_WIDTH,
+            INPUT_H
+        )
+    )
     {
+        Serial.println(
+            "[KEYBOARD] ZONE = OK"
+        );
+
+        if (keyboardTextLength == 0)
+        {
+            Serial.println(
+                "[KEYBOARD] OK ignore : texte vide"
+            );
+
+            return;
+        }
+
+        validated = true;
+
+        Serial.print(
+            "[KEYBOARD] Validation : "
+        );
+
+        Serial.println(
+            keyboardText
+        );
+
+        return;
+    }
+
+    // ========================================================
+    // ZONE SUPERIEURE HORS BOUTONS
+    // ========================================================
+
+    if (y < KEY_Y)
+    {
+        Serial.println(
+            "[KEYBOARD] ZONE = CHAMP"
+        );
+
         return;
     }
 
@@ -597,15 +532,7 @@ void keyboardUpdate(
     // ========================================================
 
     int row =
-        (y - KEYBOARD_Y) /
-        KEY_HEIGHT;
-
-    // --------------------------------------------------------
-    // Protection dernière ligne
-    // --------------------------------------------------------
-
-    if (row >= KEY_ROWS)
-        row = KEY_ROWS - 1;
+        (y - KEY_Y) / KEY_HEIGHT;
 
     // ========================================================
     // CALCUL COLONNE
@@ -615,14 +542,7 @@ void keyboardUpdate(
         x / KEY_WIDTH;
 
     // --------------------------------------------------------
-    // Protection bord droit
-    // --------------------------------------------------------
-
-    if (col >= KEY_COLS)
-        col = KEY_COLS - 1;
-
-    // --------------------------------------------------------
-    // Protection
+    // PROTECTION
     // --------------------------------------------------------
 
     if (
@@ -634,6 +554,33 @@ void keyboardUpdate(
     {
         return;
     }
+
+    // ========================================================
+    // CLAVIER ACTIF
+    // ========================================================
+
+    const char (*rows)[11];
+
+    if (currentMode == KEYBOARD_ALPHA)
+    {
+        rows = alphaRows;
+    }
+    else
+    {
+        rows = numericRows;
+    }
+
+    char c =
+        rows[row][col];
+
+    if (c == '\0')
+    {
+        return;
+    }
+
+    // ========================================================
+    // DEBUG TOUCHE
+    // ========================================================
 
     Serial.print(
         "[KEYBOARD] ROW="
@@ -647,32 +594,15 @@ void keyboardUpdate(
 
     Serial.println(col);
 
-    // ========================================================
-    // CLAVIER ACTIF
-    // ========================================================
-
-    const char (*rows)[11];
-
-    if (currentMode == KEYBOARD_ALPHA)
-        rows = alphaRows;
-    else
-        rows = numericRows;
-
-    char c =
-        rows[row][col];
-
-    if (c == '\0')
-        return;
-
-    // ========================================================
-    // AJOUT
-    // ========================================================
-
     Serial.print(
         "[KEYBOARD] TOUCHE = "
     );
 
     Serial.println(c);
+
+    // ========================================================
+    // AJOUT
+    // ========================================================
 
     addCharacter(c);
 
@@ -686,14 +616,6 @@ void keyboardUpdate(
 
     Serial.println(
         "\""
-    );
-
-    // ========================================================
-    // REDESSIN
-    // ========================================================
-
-    Serial.println(
-        "[KEYBOARD] Dessin clavier"
     );
 
     keyboardDraw();
@@ -722,7 +644,7 @@ KeyboardMode keyboardGetMode()
 }
 
 // ============================================================
-// LECTURE TEXTE
+// TEXTE
 // ============================================================
 
 const char* keyboardGetText()
@@ -740,7 +662,7 @@ bool keyboardWasValidated()
 }
 
 // ============================================================
-// EFFACER VALIDATION
+// CLEAR VALIDATION
 // ============================================================
 
 void keyboardClearValidated()

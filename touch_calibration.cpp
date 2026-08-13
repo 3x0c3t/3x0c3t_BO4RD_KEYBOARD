@@ -5,19 +5,19 @@
 #include <TFT_eSPI.h>
 
 // ============================================================
-// TFT global
+// TFT GLOBAL
 // ============================================================
 
 extern TFT_eSPI tft;
 
 // ============================================================
-// Etat
+// ETAT
 // ============================================================
 
 static bool touchInitialized = false;
 
 // ============================================================
-// Initialisation tactile
+// INITIALISATION
 // ============================================================
 
 void touchCalibrationBegin()
@@ -27,10 +27,8 @@ void touchCalibrationBegin()
     touchInitialized = false;
 
     // --------------------------------------------------------
-    // TFT_eSPI utilise directement son driver tactile
+    // Rotation
     // --------------------------------------------------------
-
-    Serial.println("[TOUCH] TFT_eSPI OK");
 
     tft.setRotation(SCREEN_ROTATION);
 
@@ -38,44 +36,52 @@ void touchCalibrationBegin()
     Serial.println(SCREEN_ROTATION);
 
     // --------------------------------------------------------
-    // Calibration automatique
+    // Calibration
     // --------------------------------------------------------
 
 #if TOUCH_CALIBRATION
 
-    Serial.println(
-        "[TOUCH] Calibration automatique ACTIVE"
-    );
+    Serial.println("[TOUCH] Calibration automatique ACTIVE");
 
     delay(500);
 
     tft.fillScreen(TFT_BLACK);
 
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setTextColor(
+        TFT_WHITE,
+        TFT_BLACK
+    );
+
     tft.setTextDatum(MC_DATUM);
 
     tft.drawString(
         "CALIBRATION",
         SCREEN_WIDTH / 2,
-        40,
+        25,
         2
     );
 
     tft.drawString(
-        "Suivre les croix",
+        "Touchez les croix",
         SCREEN_WIDTH / 2,
-        65,
+        50,
         2
     );
 
     tft.drawString(
-        "Toucher le centre",
+        "precisement au centre",
         SCREEN_WIDTH / 2,
-        90,
+        72,
         2
     );
 
-    delay(500);
+    tft.setTextDatum(TL_DATUM);
+
+    delay(1000);
+
+    // --------------------------------------------------------
+    // Calibration TFT_eSPI
+    // --------------------------------------------------------
 
     uint16_t calData[5];
 
@@ -85,6 +91,10 @@ void touchCalibrationBegin()
         TFT_BLACK,
         15
     );
+
+    // --------------------------------------------------------
+    // Affichage des valeurs
+    // --------------------------------------------------------
 
     Serial.println();
     Serial.println("==============================");
@@ -109,16 +119,28 @@ void touchCalibrationBegin()
     Serial.println("==============================");
 
     // --------------------------------------------------------
-    // IMPORTANT
-    //
-    // On conserve la calibration dans TFT_eSPI.
+    // Appliquer la calibration
     // --------------------------------------------------------
 
     tft.setTouch(calData);
 
-    delay(500);
+    // --------------------------------------------------------
+    // Rotation finale
+    // --------------------------------------------------------
+
+    tft.setRotation(SCREEN_ROTATION);
+
+    delay(300);
+
+#else
+
+    Serial.println("[TOUCH] Calibration automatique DESACTIVEE");
 
 #endif
+
+    // --------------------------------------------------------
+    // Pret
+    // --------------------------------------------------------
 
     touchInitialized = true;
 
@@ -126,7 +148,7 @@ void touchCalibrationBegin()
 }
 
 // ============================================================
-// Lecture tactile
+// LECTURE TACTILE
 // ============================================================
 
 bool touchReadScreen(
@@ -143,22 +165,18 @@ bool touchReadScreen(
     if (!touchInitialized)
         return false;
 
-    uint16_t tx;
-    uint16_t ty;
-
     // --------------------------------------------------------
     // Lecture TFT_eSPI
-    //
-    // IMPORTANT :
-    // getTouch() retourne directement les coordonnées
-    // écran après calibration.
     // --------------------------------------------------------
+
+    uint16_t tx;
+    uint16_t ty;
 
     if (!tft.getTouch(&tx, &ty))
         return false;
 
     // --------------------------------------------------------
-    // Protection
+    // Limites
     // --------------------------------------------------------
 
     if (tx >= SCREEN_WIDTH)
@@ -167,8 +185,16 @@ bool touchReadScreen(
     if (ty >= SCREEN_HEIGHT)
         ty = SCREEN_HEIGHT - 1;
 
+    // --------------------------------------------------------
+    // Coordonnees ecran
+    // --------------------------------------------------------
+
     *x = (int16_t)tx;
     *y = (int16_t)ty;
+
+    // --------------------------------------------------------
+    // Debug
+    // --------------------------------------------------------
 
     Serial.print("[TOUCH] X=");
     Serial.print(*x);
