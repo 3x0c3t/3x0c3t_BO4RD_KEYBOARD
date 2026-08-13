@@ -2,6 +2,7 @@
 #define BO4RD_KEYBOARD_CONFIG_H
 
 #include <Arduino.h>
+#include <TFT_eSPI.h>
 
 // ============================================================
 // ECRAN TFT
@@ -18,16 +19,6 @@
 #define TOUCH_THRESHOLD    600
 
 // ============================================================
-// CALIBRATION PRECEDENTE
-// ============================================================
-
-#define TOUCH_PREVIOUS_CAL_0  294
-#define TOUCH_PREVIOUS_CAL_1  3385
-#define TOUCH_PREVIOUS_CAL_2  442
-#define TOUCH_PREVIOUS_CAL_3  289
-#define TOUCH_PREVIOUS_CAL_4  3387
-
-// ============================================================
 // COULEURS
 // ============================================================
 
@@ -42,21 +33,7 @@
 #define COLOR_GREY         TFT_DARKGREY
 
 // ============================================================
-// ECRAN DE CHOIX CALIBRATION
-// ============================================================
-
-#define CALIBRATION_NEW_X     20
-#define CALIBRATION_NEW_Y     85
-#define CALIBRATION_NEW_W     200
-#define CALIBRATION_NEW_H     55
-
-#define CALIBRATION_REUSE_X   20
-#define CALIBRATION_REUSE_Y   165
-#define CALIBRATION_REUSE_W   200
-#define CALIBRATION_REUSE_H   55
-
-// ============================================================
-// ZONE CLAVIER
+// CLAVIER
 // ============================================================
 
 #define KEYBOARD_X            0
@@ -71,12 +48,11 @@
 #define KEYBOARD_MAX_LENGTH   32
 
 // ============================================================
-// ZONE SAISIE
+// ZONE TEXTE
 // ============================================================
 
 #define INPUT_X               5
 #define INPUT_Y               5
-
 #define INPUT_W               165
 #define INPUT_H               42
 
@@ -99,9 +75,10 @@
 #define BTN_OK_H              42
 
 // ============================================================
-// TEXTE
+// AFFICHAGE
 // ============================================================
 
 #define KEYBOARD_TEXT_SIZE    2
+#define KEYBOARD_BORDER       2
 
 #endif

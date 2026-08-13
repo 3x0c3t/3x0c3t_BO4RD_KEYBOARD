@@ -10,48 +10,26 @@
 void touchCalibrationInit();
 
 // ============================================================
-// ECRAN DE CHOIX
+// CALIBRATION
 // ============================================================
 
-void touchCalibrationChoice();
+void startTouchCalibration();
 
 // ============================================================
-// ETAT
+// COMPATIBILITE
 // ============================================================
 
-bool touchCalibrationActive();
-
-bool touchCalibrationFinished();
-
-// ============================================================
-// TRAITEMENT TOUCH
-// ============================================================
+bool touchCalibrationChoice();
 
 bool touchCalibrationUpdate(
     uint16_t x,
     uint16_t y
 );
 
-// ============================================================
-// CALIBRATION
-// ============================================================
-
-void startTouchCalibration();
-
 bool loadPreviousCalibration();
 
-// ============================================================
-// ZONES
-// ============================================================
+bool touchCalibrationActive();
 
-bool isNewCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
-
-bool isPreviousCalibrationZone(
-    uint16_t x,
-    uint16_t y
-);
+bool touchCalibrationFinished();
 
 #endif
