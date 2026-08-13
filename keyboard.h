@@ -1,26 +1,54 @@
-#ifndef KEYBOARD_H_INCLUDED
-#define KEYBOARD_H_INCLUDED
+#ifndef KEYBOARD_MODULE_H
+#define KEYBOARD_MODULE_H
 
 #include <Arduino.h>
 
+// ============================================================
+// Mode du clavier
+// ============================================================
+
 enum KeyboardMode
 {
-    KEYBOARD_ALPHA = 0,
-    KEYBOARD_NUMERIC = 1
+    KEYBOARD_ALPHA,
+    KEYBOARD_NUMERIC
 };
 
+// ============================================================
+// Initialisation
+// ============================================================
+
 void keyboardBegin();
+
+// ============================================================
+// Affichage
+// ============================================================
+
 void keyboardDraw();
+
+// ============================================================
+// Gestion tactile
+// ============================================================
+
 void keyboardUpdate(int16_t x, int16_t y);
+
+// ============================================================
+// Mode
+// ============================================================
 
 void keyboardSetMode(KeyboardMode mode);
 KeyboardMode keyboardGetMode();
 
+// ============================================================
+// Texte
+// ============================================================
+
 const char* keyboardGetText();
+
+// ============================================================
+// Validation
+// ============================================================
 
 bool keyboardWasValidated();
 void keyboardClearValidated();
-
-void keyboardClearText();
 
 #endif
