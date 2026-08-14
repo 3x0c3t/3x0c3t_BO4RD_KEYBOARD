@@ -10,10 +10,27 @@
 void touchCalibrationInit();
 
 // ============================================================
-// CALIBRATION
+// DEMARRAGE
 // ============================================================
 
 void startTouchCalibration();
+
+// ============================================================
+// TRAITEMENT TOUCH RAW
+// ============================================================
+
+bool touchCalibrationUpdate(
+    uint16_t x,
+    uint16_t y
+);
+
+// ============================================================
+// ETAT
+// ============================================================
+
+bool touchCalibrationActive();
+
+bool touchCalibrationFinished();
 
 // ============================================================
 // EEPROM
@@ -26,20 +43,11 @@ bool saveTouchCalibration();
 bool clearTouchCalibration();
 
 // ============================================================
-// GESTION CALIBRATION
+// COMPATIBILITE
 // ============================================================
 
 bool touchCalibrationChoice();
 
-bool touchCalibrationUpdate(
-    uint16_t x,
-    uint16_t y
-);
-
 bool loadPreviousCalibration();
-
-bool touchCalibrationActive();
-
-bool touchCalibrationFinished();
 
 #endif
