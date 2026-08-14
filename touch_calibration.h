@@ -3,15 +3,38 @@
 
 #include <Arduino.h>
 
+// ============================================================
+// INITIALISATION
+// ============================================================
+
 void touchCalibrationInit();
+
+// ============================================================
+// DEMARRAGE
+// ============================================================
 
 void startTouchCalibration();
 
-void updateTouchCalibration();
+// ============================================================
+// TRAITEMENT TOUCH
+// ============================================================
+
+bool touchCalibrationUpdate(
+    uint16_t x,
+    uint16_t y
+);
+
+// ============================================================
+// ETAT
+// ============================================================
 
 bool touchCalibrationActive();
 
 bool touchCalibrationFinished();
+
+// ============================================================
+// EEPROM
+// ============================================================
 
 bool loadTouchCalibration();
 
@@ -19,10 +42,12 @@ bool saveTouchCalibration();
 
 bool clearTouchCalibration();
 
+// ============================================================
+// COMPATIBILITE
+// ============================================================
+
 bool touchCalibrationChoice();
 
 bool loadPreviousCalibration();
-
-uint8_t selectedTouchRotation();
 
 #endif

@@ -4,12 +4,12 @@
 #include <Arduino.h>
 
 // ============================================================
-// MODES
+// MODES CLAVIER
 // ============================================================
 
 enum KeyboardMode
 {
-    KEYBOARD_ALPHA,
+    KEYBOARD_ALPHA = 0,
     KEYBOARD_NUMERIC,
     KEYBOARD_SYMBOLS
 };
