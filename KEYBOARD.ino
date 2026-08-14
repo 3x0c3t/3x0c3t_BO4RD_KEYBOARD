@@ -23,22 +23,40 @@ bool keyboardStarted = false;
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(
+        115200
+    );
 
-    delay(300);
+    delay(
+        300
+    );
 
     Serial.println();
     Serial.println();
-    Serial.println("================================");
-    Serial.println("  3x0c3t BO4RD KEYBOARD");
-    Serial.println("  VERSION 1.1");
-    Serial.println("================================");
+
+    Serial.println(
+        "================================"
+    );
+
+    Serial.println(
+        "  3x0c3t BO4RD KEYBOARD"
+    );
+
+    Serial.println(
+        "  VERSION 1.1"
+    );
+
+    Serial.println(
+        "================================"
+    );
 
     // ========================================================
     // TFT
     // ========================================================
 
-    Serial.println("[TFT] Initialisation...");
+    Serial.println(
+        "[TFT] Initialisation..."
+    );
 
     tft.init();
 
@@ -50,14 +68,19 @@ void setup()
         COLOR_BLACK
     );
 
-    Serial.println("[TFT] OK");
+    Serial.println(
+        "[TFT] OK"
+    );
 
     // ========================================================
     // DIAGNOSTIC TFT
     // ========================================================
 
     Serial.println();
-    Serial.println("[TFT] Configuration");
+
+    Serial.println(
+        "[TFT] Configuration"
+    );
 
     Serial.print(
         "[TFT] Rotation = "
@@ -120,6 +143,7 @@ void setup()
     // ========================================================
 
     Serial.println();
+
     Serial.println(
         "[TOUCH] Initialisation..."
     );
@@ -131,28 +155,25 @@ void setup()
     );
 
     // ========================================================
-    // EEPROM
+    // CALIBRATION / EEPROM
     // ========================================================
 
     Serial.println();
-    Serial.println(
-        "[TOUCH] Recherche calibration EEPROM..."
-    );
-
-    bool calibrationLoaded =
-        loadTouchCalibration();
-
-    // ========================================================
-    // CALIBRATION SI NECESSAIRE
-    // ========================================================
 
     if (
-        !calibrationLoaded
+        FORCE_TOUCH_CALIBRATION
     )
     {
-        Serial.println();
+        // ====================================================
+        // MODE FORCE
+        // ====================================================
+
         Serial.println(
-            "[TOUCH] Aucune calibration valide"
+            "[TOUCH] Calibration forcee"
+        );
+
+        Serial.println(
+            "[TOUCH] Calibration EEPROM ignoree"
         );
 
         Serial.println(
@@ -163,10 +184,41 @@ void setup()
     }
     else
     {
-        Serial.println();
+        // ====================================================
+        // MODE NORMAL
+        // ====================================================
+
         Serial.println(
-            "[TOUCH] Utilisation calibration EEPROM"
+            "[TOUCH] Recherche calibration EEPROM..."
         );
+
+        bool calibrationLoaded =
+            loadTouchCalibration();
+
+        if (
+            !calibrationLoaded
+        )
+        {
+            Serial.println();
+
+            Serial.println(
+                "[TOUCH] Aucune calibration valide"
+            );
+
+            Serial.println(
+                "[TOUCH] Lancement calibration"
+            );
+
+            startTouchCalibration();
+        }
+        else
+        {
+            Serial.println();
+
+            Serial.println(
+                "[TOUCH] Utilisation calibration EEPROM"
+            );
+        }
     }
 
     // ========================================================
@@ -174,6 +226,7 @@ void setup()
     // ========================================================
 
     Serial.println();
+
     Serial.println(
         "[KEYBOARD] Initialisation"
     );
@@ -182,13 +235,15 @@ void setup()
 
     keyboardDraw();
 
-    keyboardStarted = true;
+    keyboardStarted =
+        true;
 
     Serial.println(
         "[KEYBOARD] OK"
     );
 
     Serial.println();
+
     Serial.println(
         "[SYSTEM] Pret"
     );
@@ -273,6 +328,8 @@ void loop()
             );
         }
 
-        delay(120);
+        delay(
+            120
+        );
     }
 }

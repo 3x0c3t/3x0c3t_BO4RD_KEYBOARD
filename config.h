@@ -36,6 +36,22 @@
 #define TOUCH_EEPROM_ADDRESS    0
 
 // ============================================================
+// CALIBRATION TACTILE
+// ============================================================
+//
+// 1 = force la calibration au demarrage
+//
+// 0 = utilise la calibration EEPROM si elle existe
+//
+// IMPORTANT :
+// Mettre 1 pendant les essais de calibration.
+// Une fois la calibration valide, remettre 0.
+//
+// ============================================================
+
+#define FORCE_TOUCH_CALIBRATION    1
+
+// ============================================================
 // COULEURS
 // ============================================================
 

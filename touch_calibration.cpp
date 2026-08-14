@@ -5,10 +5,6 @@
 #include <EEPROM.h>
 #include <TFT_eSPI.h>
 
-// ============================================================
-// TFT
-// ============================================================
-
 extern TFT_eSPI tft;
 
 // ============================================================
@@ -28,10 +24,6 @@ struct TouchCalibrationData
 
     uint16_t checksum;
 };
-
-// ============================================================
-// CALIBRATION EN RAM
-// ============================================================
 
 static uint16_t calData[5] =
 {
@@ -75,6 +67,448 @@ static uint16_t calculateChecksum(
 }
 
 // ============================================================
+// ECRITURE TEXTE CENTREE
+// ============================================================
+
+static void drawCenteredText(
+    const char* text,
+    int16_t x,
+    int16_t y,
+    uint16_t color,
+    uint8_t size
+)
+{
+    tft.setTextDatum(
+        MC_DATUM
+    );
+
+    tft.setTextColor(
+        color,
+        COLOR_BLACK
+    );
+
+    tft.setTextSize(
+        size
+    );
+
+    tft.drawString(
+        text,
+        x,
+        y
+    );
+}
+
+// ============================================================
+// TEXTE ROTATION 0
+// ============================================================
+
+static void drawOK_0(
+    int16_t x,
+    int16_t y,
+    uint16_t fg,
+    uint16_t bg
+)
+{
+    tft.setRotation(
+        2
+    );
+
+    tft.setTextDatum(
+        MC_DATUM
+    );
+
+    tft.setTextColor(
+        fg,
+        bg
+    );
+
+    tft.setTextSize(
+        3
+    );
+
+    tft.drawString(
+        "OK",
+        x,
+        y
+    );
+}
+
+// ============================================================
+// TEXTE ROTATION 90
+// ============================================================
+
+static void drawOK_90(
+    int16_t x,
+    int16_t y,
+    uint16_t fg,
+    uint16_t bg
+)
+{
+    tft.setRotation(
+        1
+    );
+
+    tft.setTextDatum(
+        MC_DATUM
+    );
+
+    tft.setTextColor(
+        fg,
+        bg
+    );
+
+    tft.setTextSize(
+        3
+    );
+
+    tft.drawString(
+        "OK",
+        y,
+        SCREEN_WIDTH - x
+    );
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+}
+
+// ============================================================
+// TEXTE ROTATION 180
+// ============================================================
+
+static void drawOK_180(
+    int16_t x,
+    int16_t y,
+    uint16_t fg,
+    uint16_t bg
+)
+{
+    tft.setRotation(
+        0
+    );
+
+    tft.setTextDatum(
+        MC_DATUM
+    );
+
+    tft.setTextColor(
+        fg,
+        bg
+    );
+
+    tft.setTextSize(
+        3
+    );
+
+    tft.drawString(
+        "OK",
+        SCREEN_WIDTH - x,
+        SCREEN_HEIGHT - y
+    );
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+}
+
+// ============================================================
+// TEXTE ROTATION 270
+// ============================================================
+
+static void drawOK_270(
+    int16_t x,
+    int16_t y,
+    uint16_t fg,
+    uint16_t bg
+)
+{
+    tft.setRotation(
+        3
+    );
+
+    tft.setTextDatum(
+        MC_DATUM
+    );
+
+    tft.setTextColor(
+        fg,
+        bg
+    );
+
+    tft.setTextSize(
+        3
+    );
+
+    tft.drawString(
+        "OK",
+        SCREEN_HEIGHT - y,
+        x
+    );
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+}
+
+// ============================================================
+// ECRAN CHOIX DISPOSITION
+// ============================================================
+
+static void drawDisplayOrientationChoice()
+{
+    const int16_t cx =
+        SCREEN_WIDTH / 2;
+
+    const int16_t cy =
+        SCREEN_HEIGHT / 2;
+
+    const int16_t w =
+        SCREEN_WIDTH - 1;
+
+    const int16_t h =
+        SCREEN_HEIGHT - 1;
+
+    // ========================================================
+    // ROTATION NORMALE
+    // ========================================================
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+
+    // ========================================================
+    // FOND
+    // ========================================================
+
+    tft.fillScreen(
+        COLOR_BLACK
+    );
+
+    // ========================================================
+    // CADRE PRINCIPAL
+    // ========================================================
+
+    tft.drawRect(
+        4,
+        4,
+        SCREEN_WIDTH - 8,
+        SCREEN_HEIGHT - 8,
+        COLOR_WHITE
+    );
+
+    tft.drawRect(
+        7,
+        7,
+        SCREEN_WIDTH - 14,
+        SCREEN_HEIGHT - 14,
+        COLOR_GREY
+    );
+
+    // ========================================================
+    // TITRE
+    // ========================================================
+
+    drawCenteredText(
+        "3x0c3t_BO4RD",
+        cx,
+        28,
+        COLOR_WHITE,
+        2
+    );
+
+    // ========================================================
+    // SOUS-TITRE
+    // ========================================================
+
+    drawCenteredText(
+        "Calibration Affichage & Tactile",
+        cx,
+        55,
+        COLOR_CYAN,
+        1
+    );
+
+    // ========================================================
+    // INSTRUCTION
+    // ========================================================
+
+    drawCenteredText(
+        "Choisir la disposition de l'ecran...",
+        cx,
+        75,
+        COLOR_WHITE,
+        1
+    );
+
+    // ========================================================
+    // ZONE DE CHOIX
+    // ========================================================
+
+    const int16_t topY =
+        125;
+
+    const int16_t bottomY =
+        255;
+
+    const int16_t leftX =
+        45;
+
+    const int16_t rightX =
+        195;
+
+    // ========================================================
+    // TRIANGLES
+    // ========================================================
+
+    tft.fillTriangle(
+        cx,
+        cy,
+        leftX,
+        topY,
+        rightX,
+        topY,
+        COLOR_RED
+    );
+
+    tft.fillTriangle(
+        cx,
+        cy,
+        rightX,
+        topY,
+        rightX,
+        bottomY,
+        COLOR_GREEN
+    );
+
+    tft.fillTriangle(
+        cx,
+        cy,
+        rightX,
+        bottomY,
+        leftX,
+        bottomY,
+        COLOR_BLUE
+    );
+
+    tft.fillTriangle(
+        cx,
+        cy,
+        leftX,
+        bottomY,
+        leftX,
+        topY,
+        COLOR_YELLOW
+    );
+
+    // ========================================================
+    // SEPARATIONS
+    // ========================================================
+
+    tft.drawLine(
+        cx,
+        cy,
+        leftX,
+        topY,
+        COLOR_WHITE
+    );
+
+    tft.drawLine(
+        cx,
+        cy,
+        rightX,
+        topY,
+        COLOR_WHITE
+    );
+
+    tft.drawLine(
+        cx,
+        cy,
+        rightX,
+        bottomY,
+        COLOR_WHITE
+    );
+
+    tft.drawLine(
+        cx,
+        cy,
+        leftX,
+        bottomY,
+        COLOR_WHITE
+    );
+
+    // ========================================================
+    // CENTRE
+    // ========================================================
+
+    tft.fillCircle(
+        cx,
+        cy,
+        5,
+        COLOR_WHITE
+    );
+
+    // ========================================================
+    // OK HAUT
+    // ========================================================
+
+    drawOK_0(
+        cx,
+        105,
+        COLOR_WHITE,
+        COLOR_RED
+    );
+
+    // ========================================================
+    // OK DROITE
+    // ========================================================
+
+    drawOK_90(
+        175,
+        cy,
+        COLOR_WHITE,
+        COLOR_GREEN
+    );
+
+    // ========================================================
+    // OK BAS
+    // ========================================================
+
+    drawOK_180(
+        cx,
+        275,
+        COLOR_WHITE,
+        COLOR_BLUE
+    );
+
+    // ========================================================
+    // OK GAUCHE
+    // ========================================================
+
+    drawOK_270(
+        65,
+        cy,
+        COLOR_BLACK,
+        COLOR_YELLOW
+    );
+
+    // ========================================================
+    // RESTAURATION
+    // ========================================================
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+
+    tft.setTextDatum(
+        TL_DATUM
+    );
+
+    tft.setTextSize(
+        1
+    );
+}
+
+// ============================================================
 // INITIALISATION
 // ============================================================
 
@@ -114,394 +548,44 @@ void touchCalibrationInit()
 }
 
 // ============================================================
-// TEXTE OK - ORIENTATION 0
+// CALIBRATION
 // ============================================================
 
-static void drawOK0(
-    int16_t x,
-    int16_t y,
-    uint16_t fg,
-    uint16_t bg
-)
+void startTouchCalibration()
 {
-    tft.setTextDatum(
-        MC_DATUM
+    Serial.println();
+    Serial.println(
+        "[TOUCH] ================================"
     );
 
-    tft.setTextColor(
-        fg,
-        bg
+    Serial.println(
+        "[TOUCH] CALIBRATION AFFICHAGE & TACTILE"
     );
 
-    tft.setTextSize(
-        3
+    Serial.println(
+        "[TOUCH] Choix disposition"
     );
 
-    tft.drawString(
-        "OK",
-        x,
-        y
-    );
-}
-
-// ============================================================
-// TEXTE OK - ORIENTATION 90
-// ============================================================
-
-static void drawOK90(
-    int16_t x,
-    int16_t y,
-    uint16_t fg,
-    uint16_t bg
-)
-{
-    uint16_t oldRotation =
-        SCREEN_ROTATION;
-
-    tft.setRotation(
-        1
-    );
-
-    tft.setTextDatum(
-        MC_DATUM
-    );
-
-    tft.setTextColor(
-        fg,
-        bg
-    );
-
-    tft.setTextSize(
-        3
-    );
-
-    tft.drawString(
-        "OK",
-        y,
-        SCREEN_WIDTH - x
-    );
-
-    tft.setRotation(
-        oldRotation
-    );
-}
-
-// ============================================================
-// TEXTE OK - ORIENTATION 180
-// ============================================================
-
-static void drawOK180(
-    int16_t x,
-    int16_t y,
-    uint16_t fg,
-    uint16_t bg
-)
-{
-    uint16_t oldRotation =
-        SCREEN_ROTATION;
-
-    tft.setRotation(
-        2
-    );
-
-    tft.setTextDatum(
-        MC_DATUM
-    );
-
-    tft.setTextColor(
-        fg,
-        bg
-    );
-
-    tft.setTextSize(
-        3
-    );
-
-    tft.drawString(
-        "OK",
-        SCREEN_WIDTH - x,
-        SCREEN_HEIGHT - y
-    );
-
-    tft.setRotation(
-        oldRotation
-    );
-}
-
-// ============================================================
-// TEXTE OK - ORIENTATION 270
-// ============================================================
-
-static void drawOK270(
-    int16_t x,
-    int16_t y,
-    uint16_t fg,
-    uint16_t bg
-)
-{
-    uint16_t oldRotation =
-        SCREEN_ROTATION;
-
-    tft.setRotation(
-        3
-    );
-
-    tft.setTextDatum(
-        MC_DATUM
-    );
-
-    tft.setTextColor(
-        fg,
-        bg
-    );
-
-    tft.setTextSize(
-        3
-    );
-
-    tft.drawString(
-        "OK",
-        SCREEN_HEIGHT - y,
-        x
-    );
-
-    tft.setRotation(
-        oldRotation
-    );
-}
-
-// ============================================================
-// ECRAN D'ORIENTATION
-// ============================================================
-//
-//             0                     239
-//
-//              HAUT
-//
-//        +-------------------------+
-//        |            |            |
-//        |    OK      |      OK    |
-//        |    0°      |      90°   |
-//        |       \     |     /     |
-//        |        \    |    /      |
-//        |         \   |   /       |
-//        |          \  |  /        |
-//        |           \ | /         |
-//        |            \●/          |
-//        |             X           |
-//        |            / \          |
-//        |           /   \         |
-//        |          /     \        |
-//        |         /       \       |
-//        |        /         \      |
-//        |   OK  /           \ OK  |
-//        | 270° /             \180°|
-//        +-------------------------+
-//
-// ============================================================
-
-static void drawTriangleOrientationScreen()
-{
-    const int16_t cx =
-        SCREEN_WIDTH / 2;
-
-    const int16_t cy =
-        SCREEN_HEIGHT / 2;
-
-    const int16_t w =
-        SCREEN_WIDTH - 1;
-
-    const int16_t h =
-        SCREEN_HEIGHT - 1;
-
-    // ========================================================
-    // ROTATION NORMALE
-    // ========================================================
-
-    tft.setRotation(
-        SCREEN_ROTATION
+    Serial.println(
+        "[TOUCH] ================================"
     );
 
     // ========================================================
-    // FOND
+    // AFFICHAGE
     // ========================================================
 
-    tft.fillScreen(
-        COLOR_BLACK
+    drawDisplayOrientationChoice();
+
+    // ========================================================
+    // ATTENTE CHOIX
+    // ========================================================
+
+    Serial.println(
+        "[TOUCH] Attente choix disposition..."
     );
 
-    // ========================================================
-    // TRIANGLE HAUT-GAUCHE
-    // ========================================================
-
-    tft.fillTriangle(
-        0,
-        0,
-        w,
-        0,
-        cx,
-        cy,
-        COLOR_RED
-    );
-
-    // ========================================================
-    // TRIANGLE HAUT-DROITE
-    // ========================================================
-
-    tft.fillTriangle(
-        w,
-        0,
-        w,
-        h,
-        cx,
-        cy,
-        COLOR_GREEN
-    );
-
-    // ========================================================
-    // TRIANGLE BAS-DROITE
-    // ========================================================
-
-    tft.fillTriangle(
-        w,
-        h,
-        0,
-        h,
-        cx,
-        cy,
-        COLOR_BLUE
-    );
-
-    // ========================================================
-    // TRIANGLE BAS-GAUCHE
-    // ========================================================
-
-    tft.fillTriangle(
-        0,
-        h,
-        0,
-        0,
-        cx,
-        cy,
-        COLOR_YELLOW
-    );
-
-    // ========================================================
-    // SEPARATIONS
-    // ========================================================
-
-    tft.drawLine(
-        0,
-        0,
-        cx,
-        cy,
-        COLOR_WHITE
-    );
-
-    tft.drawLine(
-        w,
-        0,
-        cx,
-        cy,
-        COLOR_WHITE
-    );
-
-    tft.drawLine(
-        w,
-        h,
-        cx,
-        cy,
-        COLOR_WHITE
-    );
-
-    tft.drawLine(
-        0,
-        h,
-        cx,
-        cy,
-        COLOR_WHITE
-    );
-
-    // ========================================================
-    // CENTRE
-    // ========================================================
-
-    tft.fillCircle(
-        cx,
-        cy,
-        5,
-        COLOR_WHITE
-    );
-
-    // ========================================================
-    // POSITIONS DES OK
-    // ========================================================
-
-    const int16_t qx =
-        SCREEN_WIDTH / 4;
-
-    const int16_t qy =
-        SCREEN_HEIGHT / 4;
-
-    // ========================================================
-    // HAUT-GAUCHE
-    // ========================================================
-
-    drawOK0(
-        qx,
-        qy,
-        COLOR_WHITE,
-        COLOR_RED
-    );
-
-    // ========================================================
-    // HAUT-DROITE
-    // ========================================================
-
-    drawOK90(
-        SCREEN_WIDTH * 3 / 4,
-        SCREEN_HEIGHT / 4,
-        COLOR_WHITE,
-        COLOR_GREEN
-    );
-
-    // ========================================================
-    // BAS-DROITE
-    // ========================================================
-
-    drawOK180(
-        SCREEN_WIDTH * 3 / 4,
-        SCREEN_HEIGHT * 3 / 4,
-        COLOR_WHITE,
-        COLOR_BLUE
-    );
-
-    // ========================================================
-    // BAS-GAUCHE
-    // ========================================================
-
-    drawOK270(
-        SCREEN_WIDTH / 4,
-        SCREEN_HEIGHT * 3 / 4,
-        COLOR_BLACK,
-        COLOR_YELLOW
-    );
-
-    // ========================================================
-    // RESTAURATION ROTATION
-    // ========================================================
-
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
-
-    tft.setTextDatum(
-        TL_DATUM
-    );
-
-    tft.setTextSize(
-        1
-    );
+    // Pour l'instant on reste dans cet écran.
+    // La détection des quatre triangles sera ajoutée ici.
 }
 
 // ============================================================
@@ -527,10 +611,6 @@ bool loadTouchCalibration()
 
     EEPROM.end();
 
-    // ========================================================
-    // MAGIC
-    // ========================================================
-
     if (
         data.magic != TOUCH_EEPROM_MAGIC
     )
@@ -542,10 +622,6 @@ bool loadTouchCalibration()
         return false;
     }
 
-    // ========================================================
-    // VERSION
-    // ========================================================
-
     if (
         data.version != TOUCH_EEPROM_VERSION
     )
@@ -556,10 +632,6 @@ bool loadTouchCalibration()
 
         return false;
     }
-
-    // ========================================================
-    // RESOLUTION
-    // ========================================================
 
     if (
         data.width != SCREEN_WIDTH ||
@@ -573,10 +645,6 @@ bool loadTouchCalibration()
         return false;
     }
 
-    // ========================================================
-    // ROTATION
-    // ========================================================
-
     if (
         data.rotation != SCREEN_ROTATION
     )
@@ -587,10 +655,6 @@ bool loadTouchCalibration()
 
         return false;
     }
-
-    // ========================================================
-    // CHECKSUM
-    // ========================================================
 
     uint16_t expectedChecksum =
         calculateChecksum(
@@ -608,10 +672,6 @@ bool loadTouchCalibration()
         return false;
     }
 
-    // ========================================================
-    // COPIE
-    // ========================================================
-
     for (
         uint8_t i = 0;
         i < 5;
@@ -622,10 +682,6 @@ bool loadTouchCalibration()
             data.calData[i];
     }
 
-    // ========================================================
-    // ACTIVATION
-    // ========================================================
-
     tft.setRotation(
         SCREEN_ROTATION
     );
@@ -634,56 +690,8 @@ bool loadTouchCalibration()
         calData
     );
 
-    // ========================================================
-    // LOG
-    // ========================================================
-
-    Serial.println(
-        "[TOUCH EEPROM] Calibration valide"
-    );
-
     Serial.println(
         "[TOUCH EEPROM] Calibration chargee"
-    );
-
-    Serial.print(
-        "[TOUCH EEPROM] CAL0 = "
-    );
-
-    Serial.println(
-        calData[0]
-    );
-
-    Serial.print(
-        "[TOUCH EEPROM] CAL1 = "
-    );
-
-    Serial.println(
-        calData[1]
-    );
-
-    Serial.print(
-        "[TOUCH EEPROM] CAL2 = "
-    );
-
-    Serial.println(
-        calData[2]
-    );
-
-    Serial.print(
-        "[TOUCH EEPROM] CAL3 = "
-    );
-
-    Serial.println(
-        calData[3]
-    );
-
-    Serial.print(
-        "[TOUCH EEPROM] CAL4 = "
-    );
-
-    Serial.println(
-        calData[4]
     );
 
     return true;
@@ -727,10 +735,6 @@ bool saveTouchCalibration()
             data
         );
 
-    Serial.println(
-        "[TOUCH EEPROM] Sauvegarde..."
-    );
-
     EEPROM.begin(
         TOUCH_EEPROM_SIZE
     );
@@ -745,22 +749,7 @@ bool saveTouchCalibration()
 
     EEPROM.end();
 
-    if (
-        !result
-    )
-    {
-        Serial.println(
-            "[TOUCH EEPROM] ERREUR commit()"
-        );
-
-        return false;
-    }
-
-    Serial.println(
-        "[TOUCH EEPROM] Sauvegarde OK"
-    );
-
-    return true;
+    return result;
 }
 
 // ============================================================
@@ -769,10 +758,6 @@ bool saveTouchCalibration()
 
 bool clearTouchCalibration()
 {
-    Serial.println(
-        "[TOUCH EEPROM] Effacement..."
-    );
-
     EEPROM.begin(
         TOUCH_EEPROM_SIZE
     );
@@ -794,189 +779,7 @@ bool clearTouchCalibration()
 
     EEPROM.end();
 
-    if (
-        result
-    )
-    {
-        Serial.println(
-            "[TOUCH EEPROM] Effacement OK"
-        );
-    }
-    else
-    {
-        Serial.println(
-            "[TOUCH EEPROM] Erreur effacement"
-        );
-    }
-
     return result;
-}
-
-// ============================================================
-// CALIBRATION
-// ============================================================
-
-void startTouchCalibration()
-{
-    Serial.println();
-    Serial.println(
-        "[TOUCH] ================================"
-    );
-
-    Serial.println(
-        "[TOUCH] CALIBRATION"
-    );
-
-    Serial.print(
-        "[TOUCH] Rotation = "
-    );
-
-    Serial.println(
-        SCREEN_ROTATION
-    );
-
-    Serial.print(
-        "[TOUCH] Ecran = "
-    );
-
-    Serial.print(
-        SCREEN_WIDTH
-    );
-
-    Serial.print(
-        " x "
-    );
-
-    Serial.println(
-        SCREEN_HEIGHT
-    );
-
-    Serial.println(
-        "[TOUCH] Affichage orientation"
-    );
-
-    // ========================================================
-    // ECRAN D'ORIENTATION
-    // ========================================================
-
-    drawTriangleOrientationScreen();
-
-    delay(
-        2000
-    );
-
-    Serial.println(
-        "[TOUCH] Orientation affichee"
-    );
-
-    Serial.println(
-        "[TOUCH] Lancement calibration tactile"
-    );
-
-    delay(
-        500
-    );
-
-    // ========================================================
-    // CALIBRATION TFT_eSPI
-    // ========================================================
-
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
-
-    tft.calibrateTouch(
-        calData,
-        COLOR_MAGENTA,
-        COLOR_BLACK,
-        15
-    );
-
-    // ========================================================
-    // ACTIVATION
-    // ========================================================
-
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
-
-    tft.setTouch(
-        calData
-    );
-
-    // ========================================================
-    // RESULTATS
-    // ========================================================
-
-    Serial.println();
-    Serial.println(
-        "[TOUCH] Calibration terminee"
-    );
-
-    Serial.print(
-        "[TOUCH] CAL0 = "
-    );
-
-    Serial.println(
-        calData[0]
-    );
-
-    Serial.print(
-        "[TOUCH] CAL1 = "
-    );
-
-    Serial.println(
-        calData[1]
-    );
-
-    Serial.print(
-        "[TOUCH] CAL2 = "
-    );
-
-    Serial.println(
-        calData[2]
-    );
-
-    Serial.print(
-        "[TOUCH] CAL3 = "
-    );
-
-    Serial.println(
-        calData[3]
-    );
-
-    Serial.print(
-        "[TOUCH] CAL4 = "
-    );
-
-    Serial.println(
-        calData[4]
-    );
-
-    // ========================================================
-    // EEPROM
-    // ========================================================
-
-    if (
-        saveTouchCalibration()
-    )
-    {
-        Serial.println(
-            "[TOUCH] Calibration sauvegardee en EEPROM"
-        );
-    }
-    else
-    {
-        Serial.println(
-            "[TOUCH] ERREUR sauvegarde EEPROM"
-        );
-    }
-
-    Serial.println(
-        "[TOUCH] Calibration active"
-    );
-
-    Serial.println();
 }
 
 // ============================================================
