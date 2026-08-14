@@ -190,11 +190,7 @@ void loop()
             Serial.println(y);
 
             if (
-                touchCalibrationUpdate(
-                    x,
-                    y
-                )
-            )
+                updateTouchCalibration();
             {
                 Serial.println(
                     "[TOUCH] Calibration terminee"
