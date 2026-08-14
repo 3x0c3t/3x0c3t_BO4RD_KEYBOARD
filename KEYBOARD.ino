@@ -1,9 +1,13 @@
 #include <Arduino.h>
-#include <TFT_eSPI.h>
 
 #include "config.h"
 #include "touch_calibration.h"
-#include "keyboard.h"
+
+// ============================================================
+// VERSION
+// ============================================================
+
+#define KEYBOARD_VERSION "1.1"
 
 // ============================================================
 // TFT
@@ -12,17 +16,30 @@
 TFT_eSPI tft = TFT_eSPI();
 
 // ============================================================
-// ETAT SYSTEME
+// ETAT DU PROGRAMME
 // ============================================================
 
-enum SystemState
+enum ProgramState
 {
-    SYSTEM_CALIBRATION,
-    SYSTEM_KEYBOARD
+    STATE_INIT,
+    STATE_CALIBRATION,
+    STATE_KEYBOARD
 };
 
-static SystemState systemState =
-    SYSTEM_CALIBRATION;
+static ProgramState programState =
+    STATE_INIT;
+
+// ============================================================
+// PROTOTYPES
+// ============================================================
+
+void initTFT();
+void initTouch();
+
+void startKeyboard();
+void drawKeyboard();
+
+void updateKeyboardTouch();
 
 // ============================================================
 // SETUP
@@ -39,50 +56,195 @@ void setup()
     );
 
     Serial.println();
-    Serial.println();
     Serial.println(
         "================================"
     );
-
     Serial.println(
         "  3x0c3t BO4RD KEYBOARD"
     );
-
-    Serial.println(
-        "  VERSION 1.1"
+    Serial.print(
+        "  VERSION "
     );
-
+    Serial.println(
+        KEYBOARD_VERSION
+    );
     Serial.println(
         "================================"
     );
+    Serial.println();
 
     // ========================================================
     // TFT
     // ========================================================
 
+    initTFT();
+
+    // ========================================================
+    // TOUCH
+    // ========================================================
+
+    initTouch();
+
+    // ========================================================
+    // DECISION CALIBRATION
+    // ========================================================
+
+#if FORCE_TOUCH_CALIBRATION
+
+    Serial.println();
+    Serial.println(
+        "[TOUCH] Calibration forcee"
+    );
+
+    Serial.println(
+        "[TOUCH] EEPROM ignoree"
+    );
+
+    Serial.println(
+        "[TOUCH] Lancement calibration"
+    );
+
+    programState =
+        STATE_CALIBRATION;
+
+    startTouchCalibration();
+
+#else
+
+    Serial.println();
+    Serial.println(
+        "[TOUCH] Recherche calibration EEPROM..."
+    );
+
+    if (
+        loadTouchCalibration()
+    )
+    {
+        Serial.println(
+            "[TOUCH] Calibration EEPROM chargee"
+        );
+
+        Serial.print(
+            "[TOUCH] Rotation = "
+        );
+
+        Serial.println(
+            selectedTouchRotation()
+        );
+
+        programState =
+            STATE_KEYBOARD;
+
+        startKeyboard();
+    }
+    else
+    {
+        Serial.println(
+            "[TOUCH] Aucune calibration valide"
+        );
+
+        Serial.println(
+            "[TOUCH] Lancement calibration"
+        );
+
+        programState =
+            STATE_CALIBRATION;
+
+        startTouchCalibration();
+    }
+
+#endif
+}
+
+// ============================================================
+// LOOP
+// ============================================================
+
+void loop()
+{
+    // ========================================================
+    // CALIBRATION
+    // ========================================================
+
+    if (
+        programState ==
+        STATE_CALIBRATION
+    )
+    {
+        updateTouchCalibration();
+
+        if (
+            touchCalibrationFinished()
+        )
+        {
+            Serial.println();
+            Serial.println(
+                "[TOUCH] Calibration terminee"
+            );
+
+            Serial.println(
+                "[TOUCH] Passage au clavier"
+            );
+
+            programState =
+                STATE_KEYBOARD;
+
+            delay(
+                500
+            );
+
+            startKeyboard();
+        }
+
+        yield();
+
+        return;
+    }
+
+    // ========================================================
+    // CLAVIER
+    // ========================================================
+
+    if (
+        programState ==
+        STATE_KEYBOARD
+    )
+    {
+        updateKeyboardTouch();
+
+        yield();
+
+        return;
+    }
+
+    yield();
+}
+
+// ============================================================
+// INITIALISATION TFT
+// ============================================================
+
+void initTFT()
+{
     Serial.println(
         "[TFT] Initialisation..."
     );
 
     tft.init();
 
-    tft.setRotation(
-        SCREEN_ROTATION
-    );
-
-    tft.fillScreen(
-        COLOR_BLACK
-    );
-
     Serial.println(
         "[TFT] OK"
     );
 
-    // ========================================================
-    // DIAGNOSTIC TFT
-    // ========================================================
-
     Serial.println();
+
+    // --------------------------------------------------------
+    // Rotation unique du projet
+    // --------------------------------------------------------
+
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
 
     Serial.println(
         "[TFT] Configuration"
@@ -112,12 +274,18 @@ void setup()
         SCREEN_HEIGHT
     );
 
+    uint16_t realWidth =
+        tft.width();
+
+    uint16_t realHeight =
+        tft.height();
+
     Serial.print(
         "[TFT] Taille reelle = "
     );
 
     Serial.print(
-        tft.width()
+        realWidth
     );
 
     Serial.print(
@@ -125,12 +293,15 @@ void setup()
     );
 
     Serial.println(
-        tft.height()
+        realHeight
     );
 
     if (
-        tft.width() == SCREEN_WIDTH &&
-        tft.height() == SCREEN_HEIGHT
+        realWidth ==
+        SCREEN_WIDTH
+        &&
+        realHeight ==
+        SCREEN_HEIGHT
     )
     {
         Serial.println(
@@ -144,323 +315,158 @@ void setup()
         );
     }
 
-    // ========================================================
-    // TOUCH
-    // ========================================================
-
     Serial.println();
 
+    tft.fillScreen(
+        COLOR_BLACK
+    );
+}
+
+// ============================================================
+// INITIALISATION TOUCH
+// ============================================================
+
+void initTouch()
+{
     Serial.println(
         "[TOUCH] Initialisation..."
     );
 
     touchCalibrationInit();
 
+    Serial.print(
+        "[TOUCH] Rotation = "
+    );
+
+    Serial.println(
+        SCREEN_ROTATION
+    );
+
+    Serial.print(
+        "[TOUCH] Resolution = "
+    );
+
+    Serial.print(
+        SCREEN_WIDTH
+    );
+
+    Serial.print(
+        " x "
+    );
+
+    Serial.println(
+        SCREEN_HEIGHT
+    );
+
+    // --------------------------------------------------------
+    // TEST BRUT
+    // --------------------------------------------------------
+
+    Serial.println(
+        "[TOUCH] Test XPT2046..."
+    );
+
+    uint16_t rawX = 0;
+    uint16_t rawY = 0;
+
+    tft.getTouchRaw(
+        &rawX,
+        &rawY
+    );
+
+    Serial.print(
+        "[TOUCH] RAW X="
+    );
+
+    Serial.print(
+        rawX
+    );
+
+    Serial.print(
+        " Y="
+    );
+
+    Serial.println(
+        rawY
+    );
+
     Serial.println(
         "[TOUCH] OK"
     );
 
-    // ========================================================
-    // CALIBRATION / EEPROM
-    // ========================================================
-
     Serial.println();
-
-#if FORCE_TOUCH_CALIBRATION
-
-    Serial.println(
-        "[TOUCH] Calibration forcee"
-    );
-
-    Serial.println(
-        "[TOUCH] Calibration EEPROM ignoree"
-    );
-
-    Serial.println(
-        "[TOUCH] Lancement calibration"
-    );
-
-    systemState =
-        SYSTEM_CALIBRATION;
-
-    startTouchCalibration();
-
-#else
-
-    Serial.println(
-        "[TOUCH] Recherche calibration EEPROM..."
-    );
-
-    if (
-        loadTouchCalibration()
-    )
-    {
-        Serial.println(
-            "[TOUCH] Calibration EEPROM chargee"
-        );
-
-        systemState =
-            SYSTEM_KEYBOARD;
-    }
-    else
-    {
-        Serial.println(
-            "[TOUCH] Aucune calibration valide"
-        );
-
-        Serial.println(
-            "[TOUCH] Lancement calibration"
-        );
-
-        systemState =
-            SYSTEM_CALIBRATION;
-
-        startTouchCalibration();
-    }
-
-#endif
-
-    // ========================================================
-    // IMPORTANT
-    //
-    // Le clavier NE DOIT PAS etre initialise ici si une
-    // calibration est en cours.
-    // ========================================================
-
-    if (
-        systemState ==
-        SYSTEM_KEYBOARD
-    )
-    {
-        Serial.println();
-
-        Serial.println(
-            "[KEYBOARD] Initialisation"
-        );
-
-        keyboardInit();
-
-        keyboardDraw();
-
-        Serial.println(
-            "[KEYBOARD] OK"
-        );
-
-        Serial.println();
-
-        Serial.println(
-            "[SYSTEM] Pret"
-        );
-    }
 }
 
 // ============================================================
-// LOOP
+// DEMARRAGE CLAVIER
 // ============================================================
 
-void loop()
+void startKeyboard()
 {
-    // ========================================================
-    // CALIBRATION
-    // ========================================================
+    Serial.println();
+    Serial.println(
+        "[KEYBOARD] Initialisation..."
+    );
+
+    tft.setRotation(
+        selectedTouchRotation()
+    );
+
+    tft.fillScreen(
+        COLOR_BLACK
+    );
+
+    drawKeyboard();
+
+    Serial.println(
+        "[KEYBOARD] OK"
+    );
+
+    Serial.println(
+        "[KEYBOARD] Pret"
+    );
+
+    Serial.println();
+}
+
+// ============================================================
+// TOUCH CLAVIER
+// ============================================================
+
+void updateKeyboardTouch()
+{
+    uint16_t x = 0;
+    uint16_t y = 0;
 
     if (
-        systemState ==
-        SYSTEM_CALIBRATION
-    )
-    {
-        uint16_t rawX = 0;
-        uint16_t rawY = 0;
-
-        // ----------------------------------------------------
-        // Lecture tactile RAW
-        // ----------------------------------------------------
-
-        if (
-            tft.getTouchRaw(
-                &rawX,
-                &rawY
-            )
+        tft.getTouch(
+            &x,
+            &y,
+            TOUCH_THRESHOLD
         )
-        {
-            Serial.print(
-                "[TOUCH RAW] X="
-            );
-
-            Serial.print(
-                rawX
-            );
-
-            Serial.print(
-                " Y="
-            );
-
-            Serial.println(
-                rawY
-            );
-
-            // ------------------------------------------------
-            // Petite stabilisation
-            // ------------------------------------------------
-
-            delay(
-                40
-            );
-
-            uint16_t rawX2 = 0;
-            uint16_t rawY2 = 0;
-
-            if (
-                !tft.getTouchRaw(
-                    &rawX2,
-                    &rawY2
-                )
-            )
-            {
-                yield();
-
-                return;
-            }
-
-            // ------------------------------------------------
-            // Vérification stabilité
-            // ------------------------------------------------
-
-            if (
-                abs(
-                    (int32_t)rawX2 -
-                    (int32_t)rawX
-                ) > 100
-                ||
-                abs(
-                    (int32_t)rawY2 -
-                    (int32_t)rawY
-                ) > 100
-            )
-            {
-                Serial.println(
-                    "[TOUCH] Lecture instable ignoree"
-                );
-
-                yield();
-
-                return;
-            }
-
-            // ------------------------------------------------
-            // Validation
-            // ------------------------------------------------
-
-            Serial.println(
-                "[TOUCH] Pression valide"
-            );
-
-            touchCalibrationUpdate(
-                rawX2,
-                rawY2
-            );
-
-            // ------------------------------------------------
-            // ATTENDRE LE RELACHEMENT
-            // ------------------------------------------------
-
-            delay(
-                150
-            );
-
-            uint16_t releaseX = 0;
-            uint16_t releaseY = 0;
-
-            while (
-                tft.getTouchRaw(
-                    &releaseX,
-                    &releaseY
-                )
-            )
-            {
-                delay(
-                    20
-                );
-
-                yield();
-            }
-
-            Serial.println(
-                "[TOUCH] Relachement"
-            );
-
-            delay(
-                250
-            );
-
-            // ------------------------------------------------
-            // Vérifier si la calibration est terminée
-            // ------------------------------------------------
-
-            if (
-                touchCalibrationFinished()
-            )
-            {
-                Serial.println();
-                Serial.println(
-                    "[TOUCH] Calibration terminee"
-                );
-
-                Serial.println(
-                    "[TOUCH] Passage au clavier"
-                );
-
-                systemState =
-                    SYSTEM_KEYBOARD;
-
-                delay(
-                    500
-                );
-
-                // ------------------------------------------------
-                // Clavier
-                // ------------------------------------------------
-
-                Serial.println();
-
-                Serial.println(
-                    "[KEYBOARD] Initialisation"
-                );
-
-                keyboardInit();
-
-                keyboardDraw();
-
-                Serial.println(
-                    "[KEYBOARD] OK"
-                );
-
-                Serial.println();
-
-                Serial.println(
-                    "[SYSTEM] Pret"
-                );
-            }
-        }
-
-        yield();
-
-        return;
-    }
-
-    // ========================================================
-    // CLAVIER
-    // ========================================================
-
-    if (
-        systemState ==
-        SYSTEM_KEYBOARD
     )
     {
-        uint16_t x = 0;
-        uint16_t y = 0;
+        Serial.print(
+            "[TOUCH] X="
+        );
 
-        if (
+        Serial.print(
+            x
+        );
+
+        Serial.print(
+            " Y="
+        );
+
+        Serial.println(
+            y
+        );
+
+        delay(
+            150
+        );
+
+        while (
             tft.getTouch(
                 &x,
                 &y,
@@ -468,66 +474,175 @@ void loop()
             )
         )
         {
-            Serial.print(
-                "[TOUCH] X="
-            );
-
-            Serial.print(
-                x
-            );
-
-            Serial.print(
-                " Y="
-            );
-
-            Serial.println(
-                y
-            );
-
-            // ------------------------------------------------
-            // Sécurité coordonnées
-            // ------------------------------------------------
-
-            if (
-                x < SCREEN_WIDTH &&
-                y < SCREEN_HEIGHT
-            )
-            {
-                Serial.print(
-                    "[KEYBOARD TOUCH] X="
-                );
-
-                Serial.print(
-                    x
-                );
-
-                Serial.print(
-                    " Y="
-                );
-
-                Serial.println(
-                    y
-                );
-
-                keyboardUpdate(
-                    (int16_t)x,
-                    (int16_t)y
-                );
-            }
-
-            // ------------------------------------------------
-            // Anti-rebond
-            // ------------------------------------------------
-
             delay(
-                120
+                20
+            );
+
+            yield();
+        }
+    }
+}
+
+// ============================================================
+// CLAVIER
+// ============================================================
+
+void drawKeyboard()
+{
+    const int16_t margin =
+        5;
+
+    const int16_t spacing =
+        4;
+
+    const int16_t top =
+        35;
+
+    const int16_t bottom =
+        315;
+
+    const int16_t rows =
+        4;
+
+    const int16_t cols =
+        3;
+
+    const int16_t keyWidth =
+        (
+            SCREEN_WIDTH
+            -
+            (2 * margin)
+            -
+            ((cols - 1) * spacing)
+        )
+        /
+        cols;
+
+    const int16_t keyHeight =
+        (
+            bottom
+            -
+            top
+            -
+            ((rows - 1) * spacing)
+        )
+        /
+        rows;
+
+    // ========================================================
+    // TITRE
+    // ========================================================
+
+    tft.setTextDatum(
+        TC_DATUM
+    );
+
+    tft.setTextColor(
+        COLOR_WHITE,
+        COLOR_BLACK
+    );
+
+    tft.setTextSize(
+        2
+    );
+
+    tft.drawString(
+        "3x0c3t BO4RD",
+        SCREEN_WIDTH / 2,
+        10
+    );
+
+    // ========================================================
+    // TOUCHES
+    // ========================================================
+
+    const char* keys[4][3] =
+    {
+        {
+            "1",
+            "2",
+            "3"
+        },
+
+        {
+            "4",
+            "5",
+            "6"
+        },
+
+        {
+            "7",
+            "8",
+            "9"
+        },
+
+        {
+            "*",
+            "0",
+            "#"
+        }
+    };
+
+    for (
+        int row = 0;
+        row < rows;
+        row++
+    )
+    {
+        for (
+            int col = 0;
+            col < cols;
+            col++
+        )
+        {
+            int16_t x =
+                margin
+                +
+                col *
+                (
+                    keyWidth +
+                    spacing
+                );
+
+            int16_t y =
+                top
+                +
+                row *
+                (
+                    keyHeight +
+                    spacing
+                );
+
+            tft.drawRect(
+                x,
+                y,
+                keyWidth,
+                keyHeight,
+                COLOR_WHITE
+            );
+
+            tft.setTextDatum(
+                MC_DATUM
+            );
+
+            tft.setTextColor(
+                COLOR_WHITE,
+                COLOR_BLACK
+            );
+
+            tft.setTextSize(
+                3
+            );
+
+            tft.drawString(
+                keys[row][col],
+                x + keyWidth / 2,
+                y + keyHeight / 2
             );
         }
-
-        yield();
-
-        return;
     }
 
-    yield();
+    tft.setTextDatum(
+        TL_DATUM
+    );
 }

@@ -10,13 +10,22 @@
 void touchCalibrationInit();
 
 // ============================================================
-// DEMARRAGE
+// DEMARRAGE CALIBRATION
 // ============================================================
 
 void startTouchCalibration();
 
 // ============================================================
-// TRAITEMENT TOUCH
+// UPDATE CALIBRATION
+// ============================================================
+//
+// Lecture du tactile et traitement automatique.
+//
+
+void updateTouchCalibration();
+
+// ============================================================
+// TRAITEMENT AVEC COORDONNEES
 // ============================================================
 
 bool touchCalibrationUpdate(
@@ -31,6 +40,12 @@ bool touchCalibrationUpdate(
 bool touchCalibrationActive();
 
 bool touchCalibrationFinished();
+
+// ============================================================
+// ORIENTATION
+// ============================================================
+
+uint8_t selectedTouchRotation();
 
 // ============================================================
 // EEPROM
