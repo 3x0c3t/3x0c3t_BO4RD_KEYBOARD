@@ -16,7 +16,7 @@ void touchCalibrationInit();
 void startTouchCalibration();
 
 // ============================================================
-// TRAITEMENT TOUCH RAW
+// TRAITEMENT TOUCH
 // ============================================================
 
 bool touchCalibrationUpdate(
