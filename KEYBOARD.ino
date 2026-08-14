@@ -7,7 +7,7 @@
 
 // ============================================================
 // 3x0c3t BO4RD KEYBOARD
-// VERSION 1.2
+// VERSION 1.3
 // ============================================================
 
 TFT_eSPI tft = TFT_eSPI();
@@ -27,7 +27,7 @@ void setup()
     Serial.println();
     Serial.println("================================");
     Serial.println("  3x0c3t BO4RD KEYBOARD");
-    Serial.println("  VERSION 1.2");
+    Serial.println("  VERSION 1.3");
     Serial.println("================================");
     Serial.println();
 
@@ -50,7 +50,6 @@ void setup()
     Serial.println("[TFT] OK");
 
     Serial.println();
-
     Serial.println("[TFT] Configuration");
 
     Serial.print("[TFT] Rotation = ");
@@ -83,30 +82,15 @@ void setup()
     // ========================================================
 
     Serial.println();
-
     Serial.println("[TOUCH] Initialisation...");
-
-    Serial.println(
-        "[DEBUG] Avant touchCalibrationInit()"
-    );
+    Serial.println("[DEBUG] Avant touchCalibrationInit()");
 
     touchCalibrationInit();
 
-    Serial.println(
-        "[DEBUG] Apres touchCalibrationInit()"
-    );
+    Serial.println("[DEBUG] Apres touchCalibrationInit()");
 
-    Serial.print(
-        "[TOUCH] FORCE_TOUCH_CALIBRATION = "
-    );
-
-    Serial.println(
-        FORCE_TOUCH_CALIBRATION
-    );
-
-    Serial.println(
-        "[DEBUG] Avant choix calibration"
-    );
+    Serial.print("[TOUCH] FORCE_TOUCH_CALIBRATION = ");
+    Serial.println(FORCE_TOUCH_CALIBRATION);
 
     // ========================================================
     // CALIBRATION FORCEE
@@ -114,21 +98,15 @@ void setup()
 
 #if FORCE_TOUCH_CALIBRATION
 
-    Serial.println(
-        "[TOUCH] Calibration forcee"
-    );
+    Serial.println("[TOUCH] Calibration forcee");
 
     keyboardStarted = false;
 
-    Serial.println(
-        "[DEBUG] Appel startTouchCalibration()"
-    );
+    Serial.println("[DEBUG] Appel startTouchCalibration()");
 
     startTouchCalibration();
 
-    Serial.println(
-        "[DEBUG] startTouchCalibration() termine"
-    );
+    Serial.println("[DEBUG] startTouchCalibration() termine");
 
     return;
 
@@ -158,10 +136,6 @@ void setup()
             selectedTouchRotation()
         );
 
-        // ----------------------------------------------------
-        // INITIALISATION CLAVIER
-        // ----------------------------------------------------
-
         keyboardInit();
 
         keyboardDraw();
@@ -189,15 +163,7 @@ void setup()
 
     keyboardStarted = false;
 
-    Serial.println(
-        "[DEBUG] Appel startTouchCalibration()"
-    );
-
     startTouchCalibration();
-
-    Serial.println(
-        "[DEBUG] startTouchCalibration() termine"
-    );
 }
 
 // ============================================================
@@ -216,16 +182,32 @@ void loop()
     {
         updateTouchCalibration();
 
-        // ----------------------------------------------------
-        // CALIBRATION TERMINEE
-        // ----------------------------------------------------
+        delay(5);
+        yield();
 
+        return;
+    }
+
+    // ========================================================
+    // CALIBRATION TERMINEE
+    // ========================================================
+    //
+    // IMPORTANT :
+    // Ce test doit être EN DEHORS de
+    // touchCalibrationActive().
+    //
+    // Une fois DONE, active() retourne false.
+    // ========================================================
+
+    if (
+        touchCalibrationFinished()
+    )
+    {
         if (
-            touchCalibrationFinished()
+            !keyboardStarted
         )
         {
             Serial.println();
-
             Serial.println(
                 "[TOUCH] Calibration terminee"
             );
@@ -239,30 +221,31 @@ void loop()
             );
 
             // ------------------------------------------------
-            // DEMARRAGE CLAVIER
+            // S'assurer que la rotation finale est active
             // ------------------------------------------------
 
-            if (
-                !keyboardStarted
-            )
-            {
-                keyboardInit();
+            tft.setRotation(
+                selectedTouchRotation()
+            );
 
-                keyboardDraw();
+            // ------------------------------------------------
+            // Initialisation clavier
+            // ------------------------------------------------
 
-                keyboardStarted = true;
+            keyboardInit();
 
-                Serial.println(
-                    "[KEYBOARD] Demarrage"
-                );
-            }
+            keyboardDraw();
+
+            keyboardStarted = true;
+
+            Serial.println(
+                "[KEYBOARD] Demarrage"
+            );
+
+            Serial.println(
+                "[KEYBOARD] Ecran affiche"
+            );
         }
-
-        delay(5);
-
-        yield();
-
-        return;
     }
 
     // ========================================================
@@ -274,14 +257,13 @@ void loop()
     )
     {
         delay(5);
-
         yield();
 
         return;
     }
 
     // ========================================================
-    // LECTURE CLAVIER
+    // LECTURE TACTILE CLAVIER
     // ========================================================
 
     uint16_t x = 0;
@@ -316,7 +298,13 @@ void loop()
             (int16_t)y
         );
 
-        delay(120);
+        // ----------------------------------------------------
+        // Anti double-clic
+        // ----------------------------------------------------
+
+        delay(
+            KEYBOARD_TOUCH_DELAY
+        );
     }
 
     yield();
