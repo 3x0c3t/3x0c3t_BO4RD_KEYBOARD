@@ -17,6 +17,7 @@
 // ============================================================
 
 #define TOUCH_THRESHOLD    600
+#define KEYBOARD_TOUCH_DELAY 120
 
 // ============================================================
 // EEPROM
@@ -53,28 +54,38 @@
 //
 // Ecran : 240 x 320
 //
-// Zone saisie :
-//     0 .. 49
+// Zone de saisie :
+//     5 .. 64
 //
 // Clavier :
-//     60 .. 315
+//     75 .. 155
 //
-// 4 lignes :
-//     A-I
-//     J-R
-//     S-Z
-//     0-9 + SYM
+// 4 lignes de 20 pixels exactement.
+//
+// Ligne 1 :
+//     A B C D E F G H I SYM
+//
+// Ligne 2 :
+//     J K L M N O P Q R
+//
+// Ligne 3 :
+//     S T U V W X Y Z
+//
+// Ligne 4 :
+//     0 1 2 3 4 5 6 7 8 9
 //
 // ============================================================
 
 #define KEYBOARD_X             0
-#define KEYBOARD_Y             60
+#define KEYBOARD_Y             75
 
 #define KEYBOARD_W             SCREEN_WIDTH
-#define KEYBOARD_HEIGHT        255
+#define KEYBOARD_HEIGHT        80
 
 #define KEYBOARD_ROWS          4
 #define KEYBOARD_COLS          10
+
+#define KEYBOARD_KEY_HEIGHT    20
 
 #define KEYBOARD_MAX_LENGTH    64
 
@@ -85,54 +96,56 @@
 #define INPUT_X                5
 #define INPUT_Y                5
 #define INPUT_W                230
-#define INPUT_H                48
+#define INPUT_H                60
+
+// ============================================================
+// ZONE TEXTE
+// ============================================================
+//
+// La partie gauche est réservée au texte.
+// Les commandes sont à droite.
+//
+
+#define INPUT_TEXT_X           8
+#define INPUT_TEXT_Y           20
+#define INPUT_TEXT_W           138
+#define INPUT_TEXT_H           35
 
 // ============================================================
 // CONTROLES DANS LA ZONE DE SAISIE
 // ============================================================
 //
-// Ligne supérieure :
-//     texte
+// À droite :
 //
-// Ligne inférieure :
-//     SUPPRIMER | GAUCHE | DROITE | OK
+//     DEL | < | > | OK
 //
 // ============================================================
 
-#define BTN_DEL_X              5
-#define BTN_DEL_Y              56
-#define BTN_DEL_W              55
-#define BTN_DEL_H              0
+#define BTN_DELETE_X           150
+#define BTN_DELETE_Y           20
+#define BTN_DELETE_W           19
+#define BTN_DELETE_H           30
 
-// ============================================================
-// CONTROLES
-// ============================================================
+#define BTN_LEFT_X             170
+#define BTN_LEFT_Y             20
+#define BTN_LEFT_W             19
+#define BTN_LEFT_H             30
 
-#define BTN_DELETE_X           5
-#define BTN_DELETE_Y           8
-#define BTN_DELETE_W           48
-#define BTN_DELETE_H           40
+#define BTN_RIGHT_X            190
+#define BTN_RIGHT_Y            20
+#define BTN_RIGHT_W             19
+#define BTN_RIGHT_H             30
 
-#define BTN_LEFT_X             57
-#define BTN_LEFT_Y             8
-#define BTN_LEFT_W             48
-#define BTN_LEFT_H             40
-
-#define BTN_RIGHT_X            109
-#define BTN_RIGHT_Y            8
-#define BTN_RIGHT_W            48
-#define BTN_RIGHT_H            40
-
-#define BTN_OK_X               161
-#define BTN_OK_Y               8
-#define BTN_OK_W               74
-#define BTN_OK_H               40
+#define BTN_OK_X               210
+#define BTN_OK_Y               20
+#define BTN_OK_W               20
+#define BTN_OK_H               30
 
 // ============================================================
 // AFFICHAGE
 // ============================================================
 
-#define KEYBOARD_TEXT_SIZE     2
+#define KEYBOARD_TEXT_SIZE     1
 #define KEYBOARD_BORDER        1
 
 #endif

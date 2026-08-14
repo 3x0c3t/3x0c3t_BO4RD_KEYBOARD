@@ -21,20 +21,18 @@ static uint16_t cursorPosition = 0;
 // TOUCHES ALPHABETIQUES
 // ============================================================
 //
-// 3 lignes exactement
+// Ligne 1 : A-I + SYM
+// Ligne 2 : J-R
+// Ligne 3 : S-Z
 //
-// A B C D E F G H I
-// J K L M N O P Q R
-// S T U V W X Y Z
+// Les cases vides restent volontairement disponibles.
 //
-// La quatrième ligne est réservée aux chiffres.
-// ============================================================
 
 static const char* alphaKeys[3][10] =
 {
     {
         "A", "B", "C", "D", "E",
-        "F", "G", "H", "I", ""
+        "F", "G", "H", "I", "SYM"
     },
 
     {
@@ -49,12 +47,7 @@ static const char* alphaKeys[3][10] =
 };
 
 // ============================================================
-// TOUCHES NUMERIQUES
-// ============================================================
-//
-// 0 -> 9
-//
-// Dernière touche : SYM
+// CHIFFRES
 // ============================================================
 
 static const char* numericKeys[10] =
@@ -72,21 +65,25 @@ static const char* numericKeys[10] =
 };
 
 // ============================================================
-// TOUCHES SPECIALES
+// SYMBOLES
 // ============================================================
 
-static const char* symbolKeys[10] =
+static const char* symbolKeys[3][10] =
 {
-    "!",
-    "@",
-    "#",
-    "$",
-    "%",
-    "&",
-    "*",
-    "+",
-    "-",
-    "_"
+    {
+        "!", "@", "#", "$", "%",
+        "&", "*", "+", "-", "="
+    },
+
+    {
+        "(", ")", "[", "]", "{",
+        "}", "<", ">", "/", "\\"
+    },
+
+    {
+        "?", ".", ",", ":", ";",
+        "'", "\"", "_", "~", "^"
+    }
 };
 
 // ============================================================
@@ -100,43 +97,25 @@ static int16_t keyWidth()
 
 static int16_t keyHeight()
 {
-    return KEYBOARD_HEIGHT / KEYBOARD_ROWS;
+    return KEYBOARD_KEY_HEIGHT;
 }
 
 // ============================================================
-// CALCUL TEXTE
+// TEXTE
 // ============================================================
 
 static void drawInputText()
 {
+    int16_t textX = INPUT_TEXT_X;
+    int16_t textY = INPUT_TEXT_Y;
+
     tft.fillRect(
-        INPUT_X + 2,
-        INPUT_Y + 2,
-        INPUT_W - 4,
-        INPUT_H - 4,
+        INPUT_TEXT_X,
+        INPUT_TEXT_Y - 5,
+        INPUT_TEXT_W,
+        INPUT_TEXT_H,
         COLOR_BLACK
     );
-
-    tft.setTextColor(
-        COLOR_WHITE,
-        COLOR_BLACK
-    );
-
-    tft.setTextSize(
-        KEYBOARD_TEXT_SIZE
-    );
-
-    tft.setCursor(
-        INPUT_X + 8,
-        INPUT_Y + 17
-    );
-
-    // --------------------------------------------------------
-    // Affichage avec curseur
-    // --------------------------------------------------------
-
-    String before = "";
-    String after = "";
 
     if (
         cursorPosition >
@@ -147,66 +126,114 @@ static void drawInputText()
             keyboardText.length();
     }
 
-    before =
+    String before =
         keyboardText.substring(
             0,
             cursorPosition
         );
 
-    after =
+    String after =
         keyboardText.substring(
             cursorPosition
         );
 
-    tft.print(
-        before
-    );
+    // --------------------------------------------------------
+    // Texte
+    // --------------------------------------------------------
 
-    // Curseur
-    int16_t cursorX =
-        INPUT_X +
-        8 +
-        before.length() * 12;
-
-    tft.drawFastVLine(
-        cursorX,
-        INPUT_Y + 8,
-        30,
-        COLOR_GREEN
-    );
-
-    tft.print(
-        after
-    );
-}
-
-// ============================================================
-// ZONE SAISIE
-// ============================================================
-
-static void drawInputArea()
-{
-    tft.fillRect(
-        INPUT_X,
-        INPUT_Y,
-        INPUT_W,
-        INPUT_H,
+    tft.setTextColor(
+        COLOR_WHITE,
         COLOR_BLACK
     );
 
-    tft.drawRect(
-        INPUT_X,
-        INPUT_Y,
-        INPUT_W,
-        INPUT_H,
-        COLOR_WHITE
+    tft.setTextSize(
+        KEYBOARD_TEXT_SIZE
     );
 
-    drawInputText();
+    tft.setTextDatum(
+        TL_DATUM
+    );
+
+    tft.drawString(
+        before,
+        textX,
+        textY
+    );
+
+    // --------------------------------------------------------
+    // Position curseur
+    // --------------------------------------------------------
+
+    int16_t charWidth = 6;
+
+    int16_t cursorX =
+        textX +
+        before.length() *
+        charWidth;
+
+    if (
+        cursorX <
+        INPUT_TEXT_X +
+        INPUT_TEXT_W
+    )
+    {
+        tft.drawFastVLine(
+            cursorX,
+            INPUT_TEXT_Y - 2,
+            24,
+            COLOR_GREEN
+        );
+    }
+
+    // --------------------------------------------------------
+    // Texte après curseur
+    // --------------------------------------------------------
+
+    int16_t afterX =
+        cursorX + 1;
+
+    if (
+        afterX <
+        INPUT_TEXT_X +
+        INPUT_TEXT_W
+    )
+    {
+        tft.drawString(
+            after,
+            afterX,
+            textY
+        );
+    }
+
+    // --------------------------------------------------------
+    // Position curseur
+    // --------------------------------------------------------
+
+    tft.setTextColor(
+        COLOR_YELLOW,
+        COLOR_BLACK
+    );
+
+    tft.setCursor(
+        INPUT_TEXT_X,
+        INPUT_Y + 42
+    );
+
+    tft.print(
+        cursorPosition
+    );
+
+    tft.print(
+        "/"
+    );
+
+    tft.print(
+        keyboardText.length()
+    );
 }
 
 // ============================================================
-// BOUTON GENERIQUE
+// BOUTON
 // ============================================================
 
 static void drawButton(
@@ -240,7 +267,9 @@ static void drawButton(
         background
     );
 
-    tft.setTextSize(1);
+    tft.setTextSize(
+        1
+    );
 
     tft.setTextDatum(
         MC_DATUM
@@ -258,11 +287,42 @@ static void drawButton(
 }
 
 // ============================================================
-// CONTROLES
+// ZONE SAISIE
 // ============================================================
 
-static void drawControls()
+static void drawInputArea()
 {
+    tft.fillRect(
+        INPUT_X,
+        INPUT_Y,
+        INPUT_W,
+        INPUT_H,
+        COLOR_BLACK
+    );
+
+    tft.drawRect(
+        INPUT_X,
+        INPUT_Y,
+        INPUT_W,
+        INPUT_H,
+        COLOR_WHITE
+    );
+
+    // --------------------------------------------------------
+    // Séparation texte / commandes
+    // --------------------------------------------------------
+
+    tft.drawFastVLine(
+        147,
+        INPUT_Y + 4,
+        INPUT_H - 8,
+        COLOR_GREY
+    );
+
+    // --------------------------------------------------------
+    // Commandes
+    // --------------------------------------------------------
+
     drawButton(
         BTN_DELETE_X,
         BTN_DELETE_Y,
@@ -270,7 +330,7 @@ static void drawControls()
         BTN_DELETE_H,
         COLOR_RED,
         COLOR_WHITE,
-        "DEL"
+        "X"
     );
 
     drawButton(
@@ -302,32 +362,16 @@ static void drawControls()
         COLOR_BLACK,
         "OK"
     );
+
+    // --------------------------------------------------------
+    // Texte
+    // --------------------------------------------------------
+
+    drawInputText();
 }
 
 // ============================================================
-// TOUCHE SPECIALE
-// ============================================================
-
-static void drawSpecialButton(
-    int16_t x,
-    int16_t y,
-    int16_t w,
-    int16_t h
-)
-{
-    drawButton(
-        x,
-        y,
-        w,
-        h,
-        COLOR_MAGENTA,
-        COLOR_WHITE,
-        "SYM"
-    );
-}
-
-// ============================================================
-// DESSIN D'UNE TOUCHE
+// TOUCHE CLAVIER
 // ============================================================
 
 static void drawKey(
@@ -362,12 +406,36 @@ static void drawKey(
         return;
     }
 
-    tft.setTextColor(
-        COLOR_WHITE,
-        COLOR_GREY
+    uint16_t background =
+        COLOR_GREY;
+
+    uint16_t foreground =
+        COLOR_WHITE;
+
+    if (
+        strcmp(text, "SYM") == 0
+    )
+    {
+        background =
+            COLOR_MAGENTA;
+    }
+
+    tft.fillRect(
+        x + 1,
+        y + 1,
+        w - 2,
+        h - 2,
+        background
     );
 
-    tft.setTextSize(2);
+    tft.setTextColor(
+        foreground,
+        background
+    );
+
+    tft.setTextSize(
+        1
+    );
 
     tft.setTextDatum(
         MC_DATUM
@@ -394,21 +462,15 @@ void keyboardDraw()
         COLOR_BLACK
     );
 
-    // --------------------------------------------------------
-    // ZONE DE SAISIE
-    // --------------------------------------------------------
+    // ========================================================
+    // ZONE SAISIE
+    // ========================================================
 
     drawInputArea();
 
-    // --------------------------------------------------------
-    // CONTROLES
-    // --------------------------------------------------------
-
-    drawControls();
-
-    // --------------------------------------------------------
+    // ========================================================
     // CLAVIER
-    // --------------------------------------------------------
+    // ========================================================
 
     const int16_t width =
         keyWidth();
@@ -416,76 +478,49 @@ void keyboardDraw()
     const int16_t height =
         keyHeight();
 
-    // --------------------------------------------------------
-    // LIGNES ALPHA
-    // --------------------------------------------------------
-
-    for (
-        uint8_t row = 0;
-        row < 3;
-        row++
-    )
-    {
-        for (
-            uint8_t col = 0;
-            col < KEYBOARD_COLS;
-            col++
-        )
-        {
-            int16_t x =
-                KEYBOARD_X +
-                col * width;
-
-            int16_t y =
-                KEYBOARD_Y +
-                row * height;
-
-            drawKey(
-                x,
-                y,
-                width,
-                height,
-                alphaKeys[row][col]
-            );
-        }
-    }
-
-    // --------------------------------------------------------
-    // LIGNE NUMERIQUE
-    // --------------------------------------------------------
-
-    for (
-        uint8_t col = 0;
-        col < 10;
-        col++
-    )
-    {
-        int16_t x =
-            KEYBOARD_X +
-            col * width;
-
-        int16_t y =
-            KEYBOARD_Y +
-            3 * height;
-
-        drawKey(
-            x,
-            y,
-            width,
-            height,
-            numericKeys[col]
-        );
-    }
-
-    // --------------------------------------------------------
-    // MODE SYMBOLS
-    // --------------------------------------------------------
+    // ========================================================
+    // MODE ALPHA
+    // ========================================================
 
     if (
         currentMode ==
-        KEYBOARD_SYMBOLS
+        KEYBOARD_ALPHA
     )
     {
+        for (
+            uint8_t row = 0;
+            row < 3;
+            row++
+        )
+        {
+            for (
+                uint8_t col = 0;
+                col < KEYBOARD_COLS;
+                col++
+            )
+            {
+                int16_t x =
+                    KEYBOARD_X +
+                    col * width;
+
+                int16_t y =
+                    KEYBOARD_Y +
+                    row * height;
+
+                drawKey(
+                    x,
+                    y,
+                    width,
+                    height,
+                    alphaKeys[row][col]
+                );
+            }
+        }
+
+        // ----------------------------------------------------
+        // Ligne chiffres
+        // ----------------------------------------------------
+
         for (
             uint8_t col = 0;
             col < 10;
@@ -498,94 +533,118 @@ void keyboardDraw()
 
             int16_t y =
                 KEYBOARD_Y +
-                2 * height;
+                3 * height;
 
             drawKey(
                 x,
                 y,
                 width,
                 height,
-                symbolKeys[col]
+                numericKeys[col]
             );
         }
     }
 
-    // --------------------------------------------------------
-    // INDICATION DU MODE
-    // --------------------------------------------------------
+    // ========================================================
+    // MODE SYMBOLES
+    // ========================================================
 
-    const char* modeText;
-
-    if (
-        currentMode ==
-        KEYBOARD_ALPHA
-    )
-    {
-        modeText = "ABC";
-    }
     else
     {
-        modeText = "SYM";
-    }
+        for (
+            uint8_t row = 0;
+            row < 3;
+            row++
+        )
+        {
+            for (
+                uint8_t col = 0;
+                col < KEYBOARD_COLS;
+                col++
+            )
+            {
+                int16_t x =
+                    KEYBOARD_X +
+                    col * width;
 
-    drawSpecialButton(
-        0,
-        KEYBOARD_Y + 3 * height,
-        width,
-        height
-    );
+                int16_t y =
+                    KEYBOARD_Y +
+                    row * height;
 
-    // --------------------------------------------------------
-    // En mode normal, le premier emplacement est 0.
-    // On redessine donc les chiffres 0-9.
-    // --------------------------------------------------------
+                drawKey(
+                    x,
+                    y,
+                    width,
+                    height,
+                    symbolKeys[row][col]
+                );
+            }
+        }
 
-    for (
-        uint8_t col = 0;
-        col < 10;
-        col++
-    )
-    {
-        int16_t x =
-            KEYBOARD_X +
-            col * width;
-
-        int16_t y =
-            KEYBOARD_Y +
-            3 * height;
+        // ----------------------------------------------------
+        // Retour ALPHA
+        // ----------------------------------------------------
 
         drawKey(
-            x,
-            y,
+            KEYBOARD_X,
+            KEYBOARD_Y,
             width,
             height,
-            numericKeys[col]
+            "ABC"
         );
+
+        // ----------------------------------------------------
+        // Ligne chiffres toujours disponible
+        // ----------------------------------------------------
+
+        for (
+            uint8_t col = 0;
+            col < 10;
+            col++
+        )
+        {
+            int16_t x =
+                KEYBOARD_X +
+                col * width;
+
+            int16_t y =
+                KEYBOARD_Y +
+                3 * height;
+
+            drawKey(
+                x,
+                y,
+                width,
+                height,
+                numericKeys[col]
+            );
+        }
     }
 
-    // Bouton spécial par-dessus la première touche.
-    drawSpecialButton(
-        0,
-        KEYBOARD_Y + 3 * height,
-        width,
-        height
-    );
+    // ========================================================
+    // INDICATEUR MODE
+    // ========================================================
 
-    // Indicateur
     tft.setTextColor(
-        COLOR_YELLOW,
+        COLOR_CYAN,
         COLOR_BLACK
     );
 
-    tft.setTextSize(1);
-
-    tft.setCursor(
-        5,
-        KEYBOARD_Y + 3 * height + height - 12
+    tft.setTextSize(
+        1
     );
 
-    tft.print(
-        modeText
+    tft.setTextDatum(
+        TL_DATUM
+    );
+
+    tft.drawString(
+        currentMode ==
+        KEYBOARD_ALPHA
+        ? "ABC"
+        : "SYM",
+        5,
+        165
     );
 }
 
@@ -599,12 +658,18 @@ void keyboardInit()
         "[KEYBOARD] Init"
     );
 
-    keyboardText = "";
+    keyboardText =
+        "";
 
-    cursorPosition = 0;
+    cursorPosition =
+        0;
 
     currentMode =
         KEYBOARD_ALPHA;
+
+    Serial.println(
+        "[KEYBOARD] Mode ALPHA"
+    );
 
     Serial.println(
         "[KEYBOARD] OK"
@@ -651,6 +716,10 @@ void keyboardDelete()
 
     drawInputArea();
 
+    Serial.println(
+        "[KEYBOARD] DELETE"
+    );
+
     Serial.print(
         "[KEYBOARD] TEXTE = \""
     );
@@ -679,6 +748,10 @@ void keyboardCursorLeft()
 
     drawInputArea();
 
+    Serial.println(
+        "[KEYBOARD] CURSEUR GAUCHE"
+    );
+
     Serial.print(
         "[KEYBOARD] CURSEUR = "
     );
@@ -703,6 +776,10 @@ void keyboardCursorRight()
     }
 
     drawInputArea();
+
+    Serial.println(
+        "[KEYBOARD] CURSEUR DROITE"
+    );
 
     Serial.print(
         "[KEYBOARD] CURSEUR = "
@@ -734,11 +811,17 @@ void keyboardValidate()
 
 void keyboardClear()
 {
-    keyboardText = "";
+    keyboardText =
+        "";
 
-    cursorPosition = 0;
+    cursorPosition =
+        0;
 
     drawInputArea();
+
+    Serial.println(
+        "[KEYBOARD] CLEAR"
+    );
 }
 
 // ============================================================
@@ -758,6 +841,38 @@ static void addCharacter(
     }
 
     if (
+        strcmp(key, "SYM") == 0
+    )
+    {
+        currentMode =
+            KEYBOARD_SYMBOLS;
+
+        keyboardDraw();
+
+        Serial.println(
+            "[KEYBOARD] MODE SYMBOLS"
+        );
+
+        return;
+    }
+
+    if (
+        strcmp(key, "ABC") == 0
+    )
+    {
+        currentMode =
+            KEYBOARD_ALPHA;
+
+        keyboardDraw();
+
+        Serial.println(
+            "[KEYBOARD] MODE ALPHA"
+        );
+
+        return;
+    }
+
+    if (
         keyboardText.length() >=
         KEYBOARD_MAX_LENGTH
     )
@@ -765,17 +880,21 @@ static void addCharacter(
         return;
     }
 
-    keyboardText =
+    String before =
         keyboardText.substring(
             0,
             cursorPosition
-        )
-        +
-        String(key)
-        +
+        );
+
+    String after =
         keyboardText.substring(
             cursorPosition
         );
+
+    keyboardText =
+        before +
+        String(key) +
+        after;
 
     cursorPosition++;
 
@@ -830,17 +949,13 @@ void keyboardUpdate(
         y < BTN_DELETE_Y + BTN_DELETE_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] DELETE"
-        );
-
         keyboardDelete();
 
         return;
     }
 
     // ========================================================
-    // CURSEUR GAUCHE
+    // GAUCHE
     // ========================================================
 
     if (
@@ -850,17 +965,13 @@ void keyboardUpdate(
         y < BTN_LEFT_Y + BTN_LEFT_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] CURSEUR GAUCHE"
-        );
-
         keyboardCursorLeft();
 
         return;
     }
 
     // ========================================================
-    // CURSEUR DROITE
+    // DROITE
     // ========================================================
 
     if (
@@ -870,10 +981,6 @@ void keyboardUpdate(
         y < BTN_RIGHT_Y + BTN_RIGHT_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] CURSEUR DROITE"
-        );
-
         keyboardCursorRight();
 
         return;
@@ -890,10 +997,6 @@ void keyboardUpdate(
         y < BTN_OK_Y + BTN_OK_H
     )
     {
-        Serial.println(
-            "[KEYBOARD] OK"
-        );
-
         keyboardValidate();
 
         return;
@@ -942,15 +1045,124 @@ void keyboardUpdate(
     }
 
     // ========================================================
-    // LIGNES ALPHA
+    // MODE ALPHA
     // ========================================================
 
     if (
-        row < 3
+        currentMode ==
+        KEYBOARD_ALPHA
     )
     {
+        // ----------------------------------------------------
+        // Trois lignes alpha
+        // ----------------------------------------------------
+
+        if (
+            row < 3
+        )
+        {
+            const char* key =
+                alphaKeys[row][col];
+
+            if (
+                key == nullptr ||
+                strlen(key) == 0
+            )
+            {
+                return;
+            }
+
+            if (
+                strcmp(key, "SYM") == 0
+            )
+            {
+                currentMode =
+                    KEYBOARD_SYMBOLS;
+
+                Serial.println(
+                    "[KEYBOARD] MODE SYMBOLS"
+                );
+
+                keyboardDraw();
+
+                return;
+            }
+
+            Serial.print(
+                "[KEYBOARD] LETTRE = "
+            );
+
+            Serial.println(
+                key
+            );
+
+            addCharacter(
+                key
+            );
+
+            return;
+        }
+
+        // ----------------------------------------------------
+        // Ligne chiffres
+        // ----------------------------------------------------
+
+        if (
+            row == 3
+        )
+        {
+            const char* key =
+                numericKeys[col];
+
+            Serial.print(
+                "[KEYBOARD] CHIFFRE = "
+            );
+
+            Serial.println(
+                key
+            );
+
+            addCharacter(
+                key
+            );
+
+            return;
+        }
+    }
+
+    // ========================================================
+    // MODE SYMBOLES
+    // ========================================================
+
+    else
+    {
+        // ----------------------------------------------------
+        // ABC dans la première case
+        // ----------------------------------------------------
+
+        if (
+            row == 0 &&
+            col == 0
+        )
+        {
+            currentMode =
+                KEYBOARD_ALPHA;
+
+            Serial.println(
+                "[KEYBOARD] MODE ALPHA"
+            );
+
+            keyboardDraw();
+
+            return;
+        }
+
+        // ----------------------------------------------------
+        // Symboles
+        // ----------------------------------------------------
+
         const char* key =
-            alphaKeys[row][col];
+            symbolKeys[row][col];
 
         if (
             key == nullptr ||
@@ -961,68 +1173,7 @@ void keyboardUpdate(
         }
 
         Serial.print(
-            "[KEYBOARD] LETTRE = "
-        );
-
-        Serial.println(
-            key
-        );
-
-        addCharacter(
-            key
-        );
-
-        return;
-    }
-
-    // ========================================================
-    // LIGNE NUMERIQUE
-    // ========================================================
-
-    if (
-        row == 3
-    )
-    {
-        const char* key =
-            numericKeys[col];
-
-        // ----------------------------------------------------
-        // Touche SYM
-        // ----------------------------------------------------
-
-        if (
-            col == 0
-        )
-        {
-            if (
-                currentMode ==
-                KEYBOARD_ALPHA
-            )
-            {
-                currentMode =
-                    KEYBOARD_SYMBOLS;
-            }
-            else
-            {
-                currentMode =
-                    KEYBOARD_ALPHA;
-            }
-
-            Serial.println(
-                "[KEYBOARD] MODE SYMBOLS"
-            );
-
-            keyboardDraw();
-
-            return;
-        }
-
-        // ----------------------------------------------------
-        // Chiffre
-        // ----------------------------------------------------
-
-        Serial.print(
-            "[KEYBOARD] CHIFFRE = "
+            "[KEYBOARD] SYMBOLE = "
         );
 
         Serial.println(
