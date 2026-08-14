@@ -1,4 +1,4 @@
-# 3x0c3t BO4RD KEYBOARD v1.0
+# 3x0c3t BO4RD KEYBOARD v1.2
 
 Clavier tactile pour TFT 240x320 avec ESP8266,
 TFT_eSPI et XPT2046.
