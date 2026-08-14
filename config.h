@@ -7,16 +7,33 @@
 // ============================================================
 // ECRAN TFT
 // ============================================================
+//
+// UNE SEULE SOURCE DE VERITE POUR LA RESOLUTION
+//
+// ILI9341
+// Portrait
+// Rotation TFT_eSPI = 2
+//
+// ============================================================
 
 #define SCREEN_WIDTH       240
 #define SCREEN_HEIGHT      320
 #define SCREEN_ROTATION    2
 
 // ============================================================
-// TOUCH XPT2046
+// TOUCH
 // ============================================================
 
 #define TOUCH_THRESHOLD    600
+
+// ============================================================
+// EEPROM - CALIBRATION TACTILE
+// ============================================================
+
+#define TOUCH_EEPROM_SIZE       64
+#define TOUCH_EEPROM_MAGIC      0x3C7A
+#define TOUCH_EEPROM_VERSION    1
+#define TOUCH_EEPROM_ADDRESS    0
 
 // ============================================================
 // COULEURS

@@ -16,6 +16,16 @@ void touchCalibrationInit();
 void startTouchCalibration();
 
 // ============================================================
+// EEPROM
+// ============================================================
+
+bool loadTouchCalibration();
+
+bool saveTouchCalibration();
+
+bool clearTouchCalibration();
+
+// ============================================================
 // COMPATIBILITE
 // ============================================================
 
