@@ -35,6 +35,16 @@ static uint16_t calData[5] =
 };
 
 // ============================================================
+// ETAT CALIBRATION
+// ============================================================
+
+static bool calibrationActive = false;
+
+static bool calibrationFinished = false;
+
+static uint8_t selectedRotation = SCREEN_ROTATION;
+
+// ============================================================
 // CHECKSUM
 // ============================================================
 
@@ -67,7 +77,7 @@ static uint16_t calculateChecksum(
 }
 
 // ============================================================
-// ECRITURE TEXTE CENTREE
+// TEXTE CENTRE
 // ============================================================
 
 static void drawCenteredText(
@@ -78,6 +88,10 @@ static void drawCenteredText(
     uint8_t size
 )
 {
+    tft.setRotation(
+        SCREEN_ROTATION
+    );
+
     tft.setTextDatum(
         MC_DATUM
     );
@@ -99,7 +113,7 @@ static void drawCenteredText(
 }
 
 // ============================================================
-// TEXTE ROTATION 0
+// OK HAUT
 // ============================================================
 
 static void drawOK_0(
@@ -110,7 +124,7 @@ static void drawOK_0(
 )
 {
     tft.setRotation(
-        2
+        SCREEN_ROTATION
     );
 
     tft.setTextDatum(
@@ -134,7 +148,7 @@ static void drawOK_0(
 }
 
 // ============================================================
-// TEXTE ROTATION 90
+// OK DROITE
 // ============================================================
 
 static void drawOK_90(
@@ -173,7 +187,7 @@ static void drawOK_90(
 }
 
 // ============================================================
-// TEXTE ROTATION 180
+// OK BAS
 // ============================================================
 
 static void drawOK_180(
@@ -212,7 +226,7 @@ static void drawOK_180(
 }
 
 // ============================================================
-// TEXTE ROTATION 270
+// OK GAUCHE
 // ============================================================
 
 static void drawOK_270(
@@ -251,7 +265,7 @@ static void drawOK_270(
 }
 
 // ============================================================
-// ECRAN CHOIX DISPOSITION
+// ECRAN CHOIX ORIENTATION
 // ============================================================
 
 static void drawDisplayOrientationChoice()
@@ -262,30 +276,28 @@ static void drawDisplayOrientationChoice()
     const int16_t cy =
         SCREEN_HEIGHT / 2;
 
-    const int16_t w =
-        SCREEN_WIDTH - 1;
+    const int16_t topY =
+        125;
 
-    const int16_t h =
-        SCREEN_HEIGHT - 1;
+    const int16_t bottomY =
+        255;
 
-    // ========================================================
-    // ROTATION NORMALE
-    // ========================================================
+    const int16_t leftX =
+        45;
+
+    const int16_t rightX =
+        195;
 
     tft.setRotation(
         SCREEN_ROTATION
     );
-
-    // ========================================================
-    // FOND
-    // ========================================================
 
     tft.fillScreen(
         COLOR_BLACK
     );
 
     // ========================================================
-    // CADRE PRINCIPAL
+    // CADRE
     // ========================================================
 
     tft.drawRect(
@@ -316,10 +328,6 @@ static void drawDisplayOrientationChoice()
         2
     );
 
-    // ========================================================
-    // SOUS-TITRE
-    // ========================================================
-
     drawCenteredText(
         "Calibration Affichage & Tactile",
         cx,
@@ -327,10 +335,6 @@ static void drawDisplayOrientationChoice()
         COLOR_CYAN,
         1
     );
-
-    // ========================================================
-    // INSTRUCTION
-    // ========================================================
 
     drawCenteredText(
         "Choisir la disposition de l'ecran...",
@@ -341,23 +345,7 @@ static void drawDisplayOrientationChoice()
     );
 
     // ========================================================
-    // ZONE DE CHOIX
-    // ========================================================
-
-    const int16_t topY =
-        125;
-
-    const int16_t bottomY =
-        255;
-
-    const int16_t leftX =
-        45;
-
-    const int16_t rightX =
-        195;
-
-    // ========================================================
-    // TRIANGLES
+    // TRIANGLE HAUT
     // ========================================================
 
     tft.fillTriangle(
@@ -370,6 +358,10 @@ static void drawDisplayOrientationChoice()
         COLOR_RED
     );
 
+    // ========================================================
+    // TRIANGLE DROITE
+    // ========================================================
+
     tft.fillTriangle(
         cx,
         cy,
@@ -380,6 +372,10 @@ static void drawDisplayOrientationChoice()
         COLOR_GREEN
     );
 
+    // ========================================================
+    // TRIANGLE BAS
+    // ========================================================
+
     tft.fillTriangle(
         cx,
         cy,
@@ -389,6 +385,10 @@ static void drawDisplayOrientationChoice()
         bottomY,
         COLOR_BLUE
     );
+
+    // ========================================================
+    // TRIANGLE GAUCHE
+    // ========================================================
 
     tft.fillTriangle(
         cx,
@@ -448,7 +448,7 @@ static void drawDisplayOrientationChoice()
     );
 
     // ========================================================
-    // OK HAUT
+    // OK
     // ========================================================
 
     drawOK_0(
@@ -458,10 +458,6 @@ static void drawDisplayOrientationChoice()
         COLOR_RED
     );
 
-    // ========================================================
-    // OK DROITE
-    // ========================================================
-
     drawOK_90(
         175,
         cy,
@@ -469,20 +465,12 @@ static void drawDisplayOrientationChoice()
         COLOR_GREEN
     );
 
-    // ========================================================
-    // OK BAS
-    // ========================================================
-
     drawOK_180(
         cx,
         275,
         COLOR_WHITE,
         COLOR_BLUE
     );
-
-    // ========================================================
-    // OK GAUCHE
-    // ========================================================
 
     drawOK_270(
         65,
@@ -548,12 +536,22 @@ void touchCalibrationInit()
 }
 
 // ============================================================
-// CALIBRATION
+// DEMARRAGE CALIBRATION
 // ============================================================
 
 void startTouchCalibration()
 {
+    calibrationActive =
+        true;
+
+    calibrationFinished =
+        false;
+
+    selectedRotation =
+        SCREEN_ROTATION;
+
     Serial.println();
+
     Serial.println(
         "[TOUCH] ================================"
     );
@@ -570,22 +568,217 @@ void startTouchCalibration()
         "[TOUCH] ================================"
     );
 
-    // ========================================================
-    // AFFICHAGE
-    // ========================================================
-
     drawDisplayOrientationChoice();
-
-    // ========================================================
-    // ATTENTE CHOIX
-    // ========================================================
 
     Serial.println(
         "[TOUCH] Attente choix disposition..."
     );
+}
 
-    // Pour l'instant on reste dans cet écran.
-    // La détection des quatre triangles sera ajoutée ici.
+// ============================================================
+// CHOIX ORIENTATION
+// ============================================================
+
+bool touchCalibrationChoice()
+{
+    return (
+        selectedRotation != SCREEN_ROTATION
+    );
+}
+
+// ============================================================
+// TRAITEMENT TOUCH CALIBRATION
+// ============================================================
+
+bool touchCalibrationUpdate(
+    uint16_t x,
+    uint16_t y
+)
+{
+    if (
+        !calibrationActive
+    )
+    {
+        return false;
+    }
+
+    const int16_t cx =
+        SCREEN_WIDTH / 2;
+
+    const int16_t cy =
+        SCREEN_HEIGHT / 2;
+
+    const int16_t topY =
+        125;
+
+    const int16_t bottomY =
+        255;
+
+    const int16_t leftX =
+        45;
+
+    const int16_t rightX =
+        195;
+
+    // ========================================================
+    // TRIANGLE HAUT
+    // ========================================================
+
+    if (
+        y < cy &&
+        y >= topY &&
+        x >= leftX &&
+        x <= rightX
+    )
+    {
+        selectedRotation = 0;
+
+        Serial.println(
+            "[TOUCH] Choix = ROTATION 0"
+        );
+    }
+
+    // ========================================================
+    // TRIANGLE DROITE
+    // ========================================================
+
+    else if (
+        x > cx &&
+        x <= rightX &&
+        y >= topY &&
+        y <= bottomY
+    )
+    {
+        selectedRotation = 1;
+
+        Serial.println(
+            "[TOUCH] Choix = ROTATION 1"
+        );
+    }
+
+    // ========================================================
+    // TRIANGLE BAS
+    // ========================================================
+
+    else if (
+        y > cy &&
+        y <= bottomY &&
+        x >= leftX &&
+        x <= rightX
+    )
+    {
+        selectedRotation = 0;
+
+        Serial.println(
+            "[TOUCH] Choix = ROTATION 0"
+        );
+
+        // Pour l'instant, on conserve
+        // la rotation physique de base.
+    }
+
+    // ========================================================
+    // TRIANGLE GAUCHE
+    // ========================================================
+
+    else if (
+        x < cx &&
+        x >= leftX &&
+        y >= topY &&
+        y <= bottomY
+    )
+    {
+        selectedRotation = 3;
+
+        Serial.println(
+            "[TOUCH] Choix = ROTATION 3"
+        );
+    }
+    else
+    {
+        return false;
+    }
+
+    // ========================================================
+    // AFFICHAGE CHOIX
+    // ========================================================
+
+    tft.fillScreen(
+        COLOR_BLACK
+    );
+
+    drawCenteredText(
+        "Orientation selectionnee",
+        SCREEN_WIDTH / 2,
+        SCREEN_HEIGHT / 2 - 20,
+        COLOR_WHITE,
+        2
+    );
+
+    char buffer[32];
+
+    snprintf(
+        buffer,
+        sizeof(buffer),
+        "Rotation = %d",
+        selectedRotation
+    );
+
+    drawCenteredText(
+        buffer,
+        SCREEN_WIDTH / 2,
+        SCREEN_HEIGHT / 2 + 20,
+        COLOR_CYAN,
+        2
+    );
+
+    delay(
+        800
+    );
+
+    // ========================================================
+    // ROTATION SELECTIONNEE
+    // ========================================================
+
+    tft.setRotation(
+        selectedRotation
+    );
+
+    Serial.print(
+        "[TOUCH] Rotation selectionnee = "
+    );
+
+    Serial.println(
+        selectedRotation
+    );
+
+    // ========================================================
+    // POUR CETTE ETAPE :
+    // L'ORIENTATION EST VALIDEE.
+    // LA CALIBRATION TACTILE REELLE SERA LANCEE ENSUITE.
+    // ========================================================
+
+    calibrationActive =
+        false;
+
+    calibrationFinished =
+        true;
+
+    return true;
+}
+
+// ============================================================
+// ETAT CALIBRATION
+// ============================================================
+
+bool touchCalibrationActive()
+{
+    return calibrationActive;
+}
+
+bool touchCalibrationFinished()
+{
+    return calibrationFinished;
 }
 
 // ============================================================
@@ -783,36 +976,10 @@ bool clearTouchCalibration()
 }
 
 // ============================================================
-// COMPATIBILITE
+// ANCIENNE API
 // ============================================================
-
-bool touchCalibrationChoice()
-{
-    return true;
-}
-
-bool touchCalibrationUpdate(
-    uint16_t x,
-    uint16_t y
-)
-{
-    (void)x;
-    (void)y;
-
-    return true;
-}
 
 bool loadPreviousCalibration()
 {
     return loadTouchCalibration();
-}
-
-bool touchCalibrationActive()
-{
-    return false;
-}
-
-bool touchCalibrationFinished()
-{
-    return true;
 }

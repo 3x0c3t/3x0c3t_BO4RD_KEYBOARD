@@ -164,10 +164,6 @@ void setup()
         FORCE_TOUCH_CALIBRATION
     )
     {
-        // ====================================================
-        // MODE FORCE
-        // ====================================================
-
         Serial.println(
             "[TOUCH] Calibration forcee"
         );
@@ -184,10 +180,6 @@ void setup()
     }
     else
     {
-        // ====================================================
-        // MODE NORMAL
-        // ====================================================
-
         Serial.println(
             "[TOUCH] Recherche calibration EEPROM..."
         );
@@ -222,7 +214,7 @@ void setup()
     }
 
     // ========================================================
-    // CLAVIER
+    // LE CLAVIER NE DOIT DEMARRER QU'APRES LA CALIBRATION
     // ========================================================
 
     Serial.println();
@@ -259,6 +251,51 @@ void loop()
     uint16_t y = 0;
 
     // ========================================================
+    // CALIBRATION EN COURS
+    // ========================================================
+
+    if (
+        touchCalibrationActive()
+    )
+    {
+        if (
+            tft.getTouch(
+                &x,
+                &y,
+                TOUCH_THRESHOLD
+            )
+        )
+        {
+            Serial.print(
+                "[TOUCH CALIBRATION] X="
+            );
+
+            Serial.print(
+                x
+            );
+
+            Serial.print(
+                " Y="
+            );
+
+            Serial.println(
+                y
+            );
+
+            touchCalibrationUpdate(
+                x,
+                y
+            );
+
+            delay(
+                150
+            );
+        }
+
+        return;
+    }
+
+    // ========================================================
     // SECURITE
     // ========================================================
 
@@ -270,7 +307,7 @@ void loop()
     }
 
     // ========================================================
-    // TOUCH CALIBRE
+    // TOUCH CLAVIER
     // ========================================================
 
     if (

@@ -26,7 +26,7 @@ bool saveTouchCalibration();
 bool clearTouchCalibration();
 
 // ============================================================
-// COMPATIBILITE
+// GESTION CALIBRATION
 // ============================================================
 
 bool touchCalibrationChoice();
